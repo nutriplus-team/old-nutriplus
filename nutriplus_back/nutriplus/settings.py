@@ -26,7 +26,6 @@ SECRET_KEY = 'g*py-lx%!u$-a2gpds&%byly()d%8u3$+8e%m+&^8a-p622&3$'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -44,6 +43,7 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'rest_framework.authtoken',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
@@ -54,9 +54,16 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'nutriplus.urls'
+
+CORS_ORIGIN_ALLOW_ALL = True
+
+
+
+ALLOWED_HOSTS = ['*']
 
 TEMPLATES = [
     {
