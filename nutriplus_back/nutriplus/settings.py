@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'rest_framework.authtoken',
     'corsheaders',
+    'patients',
 ]
 
 MIDDLEWARE = [
