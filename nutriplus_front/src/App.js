@@ -27,7 +27,7 @@ class App extends Component {
       </Switch>
     );
 
-    if (this.props.isAuthenticated) {
+    if (this.state.isAuthenticated) {
       routes = (
         <Switch>
           <Route path="/pacientes" component={Patients} />
