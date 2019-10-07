@@ -27,7 +27,8 @@ class Login extends Component {
     } else if (answ.status === 200) {
       this.setState({ wrong_input: "" });
       await this.setState({ token: info.token });
-      this.props.loginSetter();
+      console.log(info);
+      this.props.updateLogin();
       console.log(this.state.token);
     }
   };
@@ -36,7 +37,7 @@ class Login extends Component {
     return (
       <Grid
         textAlign="center"
-        style={{ height: "100vh" }}
+        style={{ height: "10vh" }}
         verticalAlign="middle"
       >
         <Grid.Column style={{ maxWidth: 450 }}>

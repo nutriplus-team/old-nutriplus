@@ -6,7 +6,7 @@ import Toolbar from "./components/Navigation/Toolbar/Toolbar";
 import Patients from "./components/Patients/Patients";
 import FoodSuggestions from "./components/FoodSuggestions/FoodSuggestions";
 import Main from "./components/Main/Main";
-import Logout from "./components/Logout/Logout";
+import Logout from "./containers/Logout/Logout";
 
 class App extends Component {
   state = { isAuthenticated: false };
@@ -17,11 +17,17 @@ class App extends Component {
     this.setState({ isAuthenticated: true });
   };
 
+  logoutHandler = () => {
+    this.setState({ isAuthenticated: false });
+  };
+
   render() {
     let routes = (
       <Switch>
-        <Route path="/auth" component={Login} />{" "}
-        {/* FIXME: Change to real login page */}
+        <Route
+          path="/auth"
+          render={props => <Login {...props} updateLogin={this.loginHandler} />}
+        />
         <Route path="/" exact component={Main} />
         <Redirect to="/" />
       </Switch>
@@ -30,10 +36,17 @@ class App extends Component {
     if (this.state.isAuthenticated) {
       routes = (
         <Switch>
-          <Route path="/pacientes" component={Patients} />
-          <Route path="/cardapio" component={FoodSuggestions} />
-          <Route path="/logout" component={Logout} />
-          {/* FIXME: correct Logout component */}
+          <Route path="/pacientes" render={props => <Patients {...props} />} />
+          <Route
+            path="/cardapio"
+            render={props => <FoodSuggestions {...props} />}
+          />
+          <Route
+            path="/logout"
+            render={props => (
+              <Logout {...props} updateLogout={this.logoutHandler} />
+            )}
+          />
           <Route path="/" exact component={Main} />
           <Redirect to="/" />
         </Switch>
@@ -42,9 +55,7 @@ class App extends Component {
     return (
       <div className="App">
         <Toolbar isAuth={this.state.isAuthenticated} />
-        <Login loginSetter={this.loginHandler}></Login>
-        {routes}
-        {/* FIXME: put login in routes */}
+        <div style={{ position: "absolute", top: "56px" }}>{routes}</div>
       </div>
     );
   }
