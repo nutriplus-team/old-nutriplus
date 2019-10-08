@@ -2,7 +2,7 @@ from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from .serializers import AddNewPatientSerializer
+from .serializers import AddNewPatientSerializer, PatientSerializer
 from .models import Patients
 
 
@@ -20,8 +20,9 @@ class AddNewPatient(generics.CreateAPIView):
             new_entry.nutritionist = request.user
             new_entry.save()
 
+            new_serializer = PatientSerializer(new_entry)
 
-            return Response({'Info: Sucessfully created', new_entry}, status=status.HTTP_200_OK)
+            return Response({'Info': 'Succesfully added', 'New Patient': new_serializer.data}, status=status.HTTP_200_OK)
 
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
