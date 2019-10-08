@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Patients
+from .models import Patients, PatientRecord
 
 class AddNewPatientSerializer(serializers.Serializer):
     patient = serializers.CharField(max_length=120)
@@ -9,4 +9,17 @@ class AddNewPatientSerializer(serializers.Serializer):
 class PatientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Patients
-        fields = ('name', 'date_of_birth', 'food_choices')
+        fields = ('id', 'name', 'date_of_birth', 'food_choices')
+
+class PatientRecordSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PatientRecord
+        fields = ('id', 'patient', 'corporal_mass', 'height', 'BMI', 'food_restrictions',
+                  'observations', 'date_modified')
+
+class AddPatientRecordSerializer(serializers.Serializer):
+    corporal_mass = serializers.FloatField()
+    height = serializers.FloatField()
+    BMI = serializers.FloatField()
+    food_restrictions = serializers.CharField(max_length=200, allow_blank=True)
+    observations = serializers.CharField(max_length=200, allow_blank=True)
