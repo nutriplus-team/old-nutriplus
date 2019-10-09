@@ -6,7 +6,8 @@ from .serializers import AddNewPatientSerializer, PatientSerializer, AddPatientR
 from .models import Patients, PatientRecord
 
 from django.db.models import Q
-from django.utils import timezone
+#from django.utils import timezone
+import datetime
 
 
 
@@ -40,8 +41,8 @@ class EditPatient(generics.UpdateAPIView):
     serializer_class = AddNewPatient
     permission_classes = (IsAuthenticated, )
 
-    def get(self):
-        id = self.kwargs['id']
+    def get(self, *args, **kwargs):
+        id = kwargs['id']
 
         try:
             patient = Patients.objects.get(pk=id)
@@ -52,8 +53,8 @@ class EditPatient(generics.UpdateAPIView):
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def post(self, request):
-        id = self.kwargs['id']
+    def post(self, request, id):
+        #id = self.kwargs['id']
         serializer = AddNewPatientSerializer(data=request.data)
         if serializer.is_valid():
             entry = Patients.objects.get(pk=id)
@@ -102,10 +103,10 @@ class AddPatientRecord(generics.CreateAPIView):
             new_entry.BMI = serializer.validated_data['BMI']
             new_entry.food_restrictions = serializer.validated_data['food_restrictions']
             new_entry.observations = serializer.validated_data['observations']
-            new_entry.date_modified = timezone.now()
+            new_entry.date_modified = datetime.date.today()
             new_entry.save()
 
-            new_serializer = PatientSerializer(new_entry)
+            new_serializer = PatientRecordSerializer(new_entry)
 
             return Response({'Info': 'Sucessfully added', 'New record': new_serializer.data}, status=status.HTTP_200_OK)
 
