@@ -72,7 +72,7 @@ class EditPatient(generics.UpdateAPIView):
 
 
 class SearchPatients(generics.ListAPIView):
-    serializer_class = Patients
+    serializer_class = PatientSerializer
     permission_classes = (IsAuthenticated, )
     pagination_class = PatientsPagination
 
@@ -80,8 +80,7 @@ class SearchPatients(generics.ListAPIView):
         patient_name = self.kwargs['name']
         nutritionist = self.request.user
 
-        query_set = Patients.objects.filter(Q(nutritionist=nutritionist) &
-                                            Q(name__icontains=patient_name))
+        query_set = Patients.objects.filter(Q(nutritionist=nutritionist) & Q(name__icontains=patient_name)).order_by('name')
 
         return query_set
 
