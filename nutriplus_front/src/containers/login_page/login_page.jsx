@@ -11,8 +11,22 @@ import {
 class Login extends Component {
   state = {};
 
+  componentDidMount = async () => {
+    let username = localStorage.getItem("stored_username") || "";
+    let password = localStorage.getItem("stored_password") || "";
+    let isAuthenticated = localStorage.getItem("stored_auth") || "";
+    if (username && password && isAuthenticated) {
+      await new Promise(resolve => {
+        this.setState({ username: username, password: password }, () => {
+          resolve();
+        });
+      });
+      this.login();
+    }
+  };
+
   login = async () => {
-    const res = await fetch("http://localhost:8000/user/login/", {
+    const res = await fetch("http://localhost:8080/user/login/", {
       method: "post",
       body: JSON.stringify({
         username: this.state.username,
@@ -30,6 +44,9 @@ class Login extends Component {
       console.log(info);
       this.props.updateLogin();
       console.log(this.state.token);
+      localStorage.setItem("stored_username", this.state.username);
+      localStorage.setItem("stored_password", this.state.password);
+      localStorage.setItem("stored_auth", 1);
     }
   };
 

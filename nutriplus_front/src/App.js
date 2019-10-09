@@ -11,14 +11,30 @@ import Logout from "./containers/Logout/Logout";
 class App extends Component {
   state = { isAuthenticated: false };
 
-  componentDidMount = () => {};
+  componentDidMount = async () => {
+    let isAuthenticated = localStorage.getItem("stored_auth") || false;
+    if (isAuthenticated == true) {
+      await new Promise(resolve => {
+        this.setState({ isAuthenticated: true }, () => {
+          resolve();
+        });
+      });
+    }
+  };
 
   loginHandler = () => {
     this.setState({ isAuthenticated: true });
   };
 
-  logoutHandler = () => {
-    this.setState({ isAuthenticated: false });
+  logoutHandler = async () => {
+    await new Promise(resolve => {
+      localStorage.setItem("stored_username", "");
+      localStorage.setItem("stored_password", "");
+      localStorage.setItem("stored_auth", false);
+      this.setState({ isAuthenticated: false }, () => {
+        resolve();
+      });
+    });
   };
 
   render() {
