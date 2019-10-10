@@ -6,10 +6,7 @@ from .serializers import AddNewPatientSerializer, PatientSerializer, AddPatientR
 from .models import Patients, PatientRecord
 
 from django.db.models import Q
-#from django.utils import timezone
 import datetime
-
-
 
 class PatientsPagination(pagination.PageNumberPagination):
     page_size = 10
@@ -79,6 +76,7 @@ class SearchPatients(generics.ListAPIView):
 
     def get_queryset(self):
         patient_name = self.kwargs['name']
+        patient_name = patient_name.replace('_', ' ')
         nutritionist = self.request.user
 
         query_set = Patients.objects.filter(Q(nutritionist=nutritionist) & Q(name__icontains=patient_name)).order_by('name')
@@ -112,3 +110,87 @@ class AddPatientRecord(generics.CreateAPIView):
 
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class EditPatientRecord(generics.UpdateAPIView):
+    permission_classes = (IsAuthenticated, )
+
+    def get(self, *args, **kwargs):
+
+        record = PatientRecord.objects.get(pk=self.kwargs['id'])
+
+        serializer = PatientRecordSerializer(record)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request, id):
+        record = PatientRecord.objects.get(pk=id)
+
+        serializer = AddPatientRecordSerializer(data=request.data)
+
+        if serializer.is_valid():
+            record.corporal_mass = serializer.validated_data['corporal_mass']
+            record.height = serializer.validated_data['height']
+            record.BMI = serializer.validated_data['BMI']
+            record.food_restrictions = serializer.validated_data['food_restrictions']
+            record.observations = serializer.validated_data['observations']
+            record.date_modified = datetime.date.today()
+            record.save()
+
+            new_serializer = PatientRecordSerializer(record)
+
+            return Response({'Info': 'Successfully edied', 'Record': new_serializer.data}, status=status.HTTP_200_OK)
+
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class GetPatientInfo(generics.GenericAPIView):
+    permission_classes = (IsAuthenticated, )
+
+
+    def get(self, *args, **kwargs):
+
+        try:
+            patient = Patients.objects.get(pk=kwargs['id'])
+        except Patients.DoesNotExist:
+            return Response({'Info': 'Patient not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = PatientSerializer(patient)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+class GetPatientRecords(generics.ListAPIView):
+    permission_classes = (IsAuthenticated, )
+    pagination_class = PatientsPagination
+    serializer_class = PatientRecordSerializer
+
+    def get_queryset(self):
+
+        try:
+            patient = Patients.objects.get(pk=self.kwargs['id'])
+        except Patients.DoesNotExist:
+            return list()
+
+        if patient.nutritionist == self.request.user:
+            records = PatientRecord.objects.filter(patient=patient).order_by('date_modified')
+            return records
+        else:
+            return list()
+
+class GetAllPatients(generics.ListAPIView):
+    pagination_class = PatientsPagination
+    serializer_class = PatientSerializer
+
+    def get_queryset(self):
+        return Patients.objects.all().order_by('name')
+
+class GetSingleRecord(generics.GenericAPIView):
+    permission_classes = (IsAuthenticated, )
+
+    def get(self, request, *args, **kwargs):
+
+        try:
+            record = PatientRecord.objects.get(pk=kwargs['id'])
+        except PatientRecordSerializer.DoesNotExist:
+            return Response({'Info': 'Patient does not exist'}, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = PatientRecordSerializer(record)
+        return Response(serializer.data, status=status.HTTP_200_OK)
