@@ -45,6 +45,8 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'corsheaders',
     'patients',
+    'menu',
+    'food',
 ]
 
 MIDDLEWARE = [
