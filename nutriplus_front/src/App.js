@@ -7,13 +7,14 @@ import Patients from "./components/Patients/Patients";
 import FoodSuggestions from "./components/FoodSuggestions/FoodSuggestions";
 import Main from "./components/Main/Main";
 import Logout from "./containers/Logout/Logout";
+import Subscribe from "./containers/Subscribe/Subscribe";
 
 class App extends Component {
   state = { isAuthenticated: false };
 
   componentDidMount = async () => {
     let isAuthenticated = localStorage.getItem("stored_auth") || false;
-    if (isAuthenticated == true) {
+    if (isAuthenticated === "1") {
       await new Promise(resolve => {
         this.setState({ isAuthenticated: true }, () => {
           resolve();
@@ -28,8 +29,8 @@ class App extends Component {
 
   logoutHandler = async () => {
     await new Promise(resolve => {
-      localStorage.setItem("stored_username", "");
-      localStorage.setItem("stored_password", "");
+      localStorage.setItem("stored_token", "");
+      localStorage.setItem("stored_refresh", "");
       localStorage.setItem("stored_auth", false);
       this.setState({ isAuthenticated: false }, () => {
         resolve();
@@ -43,6 +44,10 @@ class App extends Component {
         <Route
           path="/auth"
           render={props => <Login {...props} updateLogin={this.loginHandler} />}
+        />
+        <Route
+          path="/subscription"
+          render={props => <Subscribe {...props} />}
         />
         <Route path="/" exact component={Main} />
         <Redirect to="/" />
@@ -71,7 +76,10 @@ class App extends Component {
     return (
       <div className="App">
         <Toolbar isAuth={this.state.isAuthenticated} />
-        <div style={{ position: "absolute", top: "56px" }}>{routes}</div>
+        <br></br>
+        <br></br>
+        <br></br>
+        {routes}
       </div>
     );
   }

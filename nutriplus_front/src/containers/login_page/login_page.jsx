@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { NavLink } from "react-router-dom";
 import {
   Button,
   Form,
@@ -10,20 +11,6 @@ import {
 
 class Login extends Component {
   state = {};
-
-  componentDidMount = async () => {
-    let username = localStorage.getItem("stored_username") || "";
-    let password = localStorage.getItem("stored_password") || "";
-    let isAuthenticated = localStorage.getItem("stored_auth") || "";
-    if (username && password && isAuthenticated) {
-      await new Promise(resolve => {
-        this.setState({ username: username, password: password }, () => {
-          resolve();
-        });
-      });
-      this.login();
-    }
-  };
 
   login = async () => {
     const res = await fetch("http://localhost:8080/user/login/", {
@@ -40,12 +27,11 @@ class Login extends Component {
       this.setState({ wrong_input: "Usuário ou senha incorretos." });
     } else if (answ.status === 200) {
       this.setState({ wrong_input: "" });
-      await this.setState({ token: info.token });
       console.log(info);
       this.props.updateLogin();
       console.log(this.state.token);
-      localStorage.setItem("stored_username", this.state.username);
-      localStorage.setItem("stored_password", this.state.password);
+      localStorage.setItem("stored_token", info.token);
+      localStorage.setItem("stored_refresh", info.refresh);
       localStorage.setItem("stored_auth", 1);
     }
   };
@@ -90,7 +76,7 @@ class Login extends Component {
             </Segment>
           </Form>
           <Message>
-            Acabou de chegar? <a href="/">Inscreva-se!</a>
+            Acabou de chegar? <NavLink to="/subscription">Inscreva-se!</NavLink>
           </Message>
         </Grid.Column>
       </Grid>
