@@ -8,6 +8,7 @@ from .models import Patients, PatientRecord
 from django.db.models import Q
 import datetime
 
+
 class PatientsPagination(pagination.PageNumberPagination):
     page_size = 10
 
@@ -85,6 +86,7 @@ class SearchPatients(generics.ListAPIView):
 
         return query_set
 
+
 class AddPatientRecord(generics.CreateAPIView):
     permission_classes = (IsAuthenticated, )
 
@@ -111,6 +113,7 @@ class AddPatientRecord(generics.CreateAPIView):
 
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class EditPatientRecord(generics.UpdateAPIView):
     permission_classes = (IsAuthenticated, )
@@ -143,9 +146,9 @@ class EditPatientRecord(generics.UpdateAPIView):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 class GetPatientInfo(generics.GenericAPIView):
     permission_classes = (IsAuthenticated, )
-
 
     def get(self, *args, **kwargs):
 
@@ -156,6 +159,7 @@ class GetPatientInfo(generics.GenericAPIView):
 
         serializer = PatientSerializer(patient)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 class GetPatientRecords(generics.ListAPIView):
     permission_classes = (IsAuthenticated, )
@@ -175,12 +179,16 @@ class GetPatientRecords(generics.ListAPIView):
         else:
             return list()
 
+
 class GetAllPatients(generics.ListAPIView):
+    permission_classes = (IsAuthenticated, )
     pagination_class = PatientsPagination
     serializer_class = PatientSerializer
 
     def get_queryset(self):
-        return Patients.objects.all().order_by('name')
+        nutritionist = self.request.user
+        return Patients.objects.filter(Q(nutritionist=nutritionist)).order_by('name')
+
 
 class GetSingleRecord(generics.GenericAPIView):
     permission_classes = (IsAuthenticated, )

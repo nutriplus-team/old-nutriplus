@@ -22,7 +22,10 @@ class AddNewFood(generics.CreateAPIView):
         if serializer.is_valid():
             new_entry = Food()
             new_entry.food_name = serializer.validated_data['food_name']
-            new_entry.measure = serializer.validated_data['measure']
+            new_entry.food_group = serializer.validated_data['food_group']
+            new_entry.measure_total_grams = serializer.validated_data['measure_total_grams']
+            new_entry.measure_type = serializer.validated_data['measure_type']
+            new_entry.measure_amount = serializer.validated_data['measure_amount']
             new_entry.calories = serializer.validated_data['calories']
             new_entry.proteins = serializer.validated_data['proteins']
             new_entry.carbohydrates = serializer.validated_data['carbohydrates']
@@ -31,7 +34,7 @@ class AddNewFood(generics.CreateAPIView):
 
             new_serializer = FoodSerializer(new_entry)
 
-            return Response({'Info': 'Succesfully added', 'New Food': new_serializer.data}, status=status.HTTP_200_OK)
+            return Response({'Info': 'Successfully added', 'New Food': new_serializer.data}, status=status.HTTP_200_OK)
 
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -59,7 +62,10 @@ class EditFood(generics.UpdateAPIView):
         if serializer.is_valid():
             entry = Food.objects.get(pk=id)
             entry.food_name = serializer.validated_data['food_name']
-            entry.measure = serializer.validated_data['measure']
+            entry.food_group = serializer.validated_data['food_group']
+            entry.measure_total_grams = serializer.validated_data['measure_total_grams']
+            entry.measure_type = serializer.validated_data['measure_type']
+            entry.measure_amount = serializer.validated_data['measure_amount']
             entry.calories = serializer.validated_data['calories']
             entry.proteins = serializer.validated_data['proteins']
             entry.carbohydrates = serializer.validated_data['carbohydrates']
@@ -74,12 +80,14 @@ class EditFood(generics.UpdateAPIView):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 class ListFoods(generics.ListAPIView):
     serializer_class = FoodSerializer
     permission_classes = (IsAuthenticated, )
 
     def get_queryset(self, *args, **kwargs):
         return Food.objects.all()
+
 
 class ListFoodsPagination(generics.ListAPIView):
     serializer_class = FoodSerializer
