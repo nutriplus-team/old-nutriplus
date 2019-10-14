@@ -23,6 +23,7 @@ class AddNewPatient(generics.CreateAPIView):
             new_entry.name = serializer.validated_data['patient']
             new_entry.date_of_birth = serializer.validated_data['date_of_birth']
             new_entry.food_choices = serializer.validated_data['food_choices']
+            new_entry.food_restrictions = serializer.validated_data['food_restrictions']
             new_entry.nutritionist = request.user
             new_entry.save()
 
@@ -58,6 +59,7 @@ class EditPatient(generics.UpdateAPIView):
             entry.name = serializer.validated_data['patient']
             entry.date_of_birth = serializer.validated_data['date_of_birth']
             entry.food_choices = serializer.validated_data['food_choices']
+            entry.food_restrictions = serializer.validated_data['food_restrictions']
             entry.save()
 
             new_serializer = PatientSerializer(entry)
@@ -99,7 +101,6 @@ class AddPatientRecord(generics.CreateAPIView):
             new_entry.corporal_mass = serializer.validated_data['corporal_mass']
             new_entry.height = serializer.validated_data['height']
             new_entry.BMI = serializer.validated_data['BMI']
-            new_entry.food_restrictions = serializer.validated_data['food_restrictions']
             new_entry.observations = serializer.validated_data['observations']
             new_entry.date_modified = datetime.date.today()
             new_entry.save()
@@ -131,7 +132,6 @@ class EditPatientRecord(generics.UpdateAPIView):
             record.corporal_mass = serializer.validated_data['corporal_mass']
             record.height = serializer.validated_data['height']
             record.BMI = serializer.validated_data['BMI']
-            record.food_restrictions = serializer.validated_data['food_restrictions']
             record.observations = serializer.validated_data['observations']
             record.date_modified = datetime.date.today()
             record.save()

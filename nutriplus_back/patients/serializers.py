@@ -5,21 +5,21 @@ class AddNewPatientSerializer(serializers.Serializer):
     patient = serializers.CharField(max_length=120)
     date_of_birth = serializers.DateField()
     food_choices = serializers.CharField(max_length=200)
+    food_restrictions = serializers.CharField(max_length=200, allow_blank=True)
 
 class PatientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Patients
-        fields = ('id', 'name', 'date_of_birth', 'food_choices')
+        fields = ('id', 'name', 'date_of_birth', 'food_choices', 'food_restrictions')
 
 class PatientRecordSerializer(serializers.ModelSerializer):
     class Meta:
         model = PatientRecord
-        fields = ('id', 'patient', 'corporal_mass', 'height', 'BMI', 'food_restrictions',
+        fields = ('id', 'patient', 'corporal_mass', 'height', 'BMI',
                   'observations', 'date_modified')
 
 class AddPatientRecordSerializer(serializers.Serializer):
     corporal_mass = serializers.FloatField()
     height = serializers.FloatField()
     BMI = serializers.FloatField()
-    food_restrictions = serializers.CharField(max_length=200, allow_blank=True)
     observations = serializers.CharField(max_length=200, allow_blank=True)
