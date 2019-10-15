@@ -4,7 +4,7 @@ from .models import Patients, PatientRecord
 
 class AddNewPatientSerializer(serializers.Serializer):
     patient = serializers.CharField(max_length=120)
-    date_of_birth = serializers.DateField()
+    date_of_birth = serializers.DateField(format="%d/%m/%Y", input_formats=["%d/%m/%Y"])
     food_choices = serializers.CharField(max_length=200)
     food_restrictions = serializers.CharField(max_length=200, allow_blank=True)
 

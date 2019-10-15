@@ -1,9 +1,9 @@
 import React, { Component } from "react";
 import "./App.css";
-import { Route, Switch, withRouter, Redirect } from "react-router-dom";
+import { Route, Switch, Redirect } from "react-router-dom";
 import Login from "./containers/login_page/login_page";
 import Toolbar from "./components/Navigation/Toolbar/Toolbar";
-import Patients from "./components/Patients/Patients";
+import Patients from "./containers/Patients/Patients";
 import FoodSuggestions from "./components/FoodSuggestions/FoodSuggestions";
 import Main from "./components/Main/Main";
 import Logout from "./containers/Logout/Logout";
@@ -86,4 +86,4 @@ class App extends Component {
   }
 }
 
-export default withRouter(App);
+export default App;
