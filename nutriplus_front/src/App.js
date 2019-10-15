@@ -21,6 +21,7 @@ class App extends Component {
         });
       });
     }
+    console.log(localStorage.getItem("stored_token"));
   };
 
   loginHandler = () => {
