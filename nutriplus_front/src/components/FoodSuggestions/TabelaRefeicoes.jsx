@@ -6,6 +6,7 @@ class TabelaRefeicoes extends Component {
   state = {};
   render() {
     let refeicao = this.props.refeicao;
+    let name = "Infos";
     return (
       <center>
         <Menu vertical>
@@ -13,43 +14,49 @@ class TabelaRefeicoes extends Component {
             <Menu.Header>Refeições</Menu.Header>
             <Menu.Menu>
               <Menu.Item
-                name={"1"}
-                active={refeicao === "1"}
+                name={name}
+                value={0}
+                active={refeicao === 0}
                 onClick={this.props.handleRefeicao}
               >
                 Café da manhã
               </Menu.Item>
               <Menu.Item
-                name={"2"}
-                active={refeicao === "2"}
+                name={name}
+                value={1}
+                active={refeicao === 1}
                 onClick={this.props.handleRefeicao}
               >
                 Lanche da manhã
               </Menu.Item>
               <Menu.Item
-                name={"3"}
-                active={refeicao === "3"}
+                name={name}
+                value={2}
+                active={refeicao === 2}
                 onClick={this.props.handleRefeicao}
               >
                 Almoço
               </Menu.Item>
               <Menu.Item
-                name={"4"}
-                active={refeicao === "4"}
+                name={name}
+                value={3}
+                active={refeicao === 3}
                 onClick={this.props.handleRefeicao}
               >
                 Lanche da tarde
               </Menu.Item>
               <Menu.Item
-                name={"5"}
-                active={refeicao === "5"}
+                name={name}
+                value={4}
+                active={refeicao === 4}
                 onClick={this.props.handleRefeicao}
               >
                 Jantar
               </Menu.Item>
               <Menu.Item
-                name={"6"}
-                active={refeicao === "6"}
+                name={name}
+                value={5}
+                active={refeicao === 5}
                 onClick={this.props.handleRefeicao}
               >
                 Lanche da noite
