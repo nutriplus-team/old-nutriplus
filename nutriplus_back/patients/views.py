@@ -1,5 +1,5 @@
 from rest_framework import generics, status, pagination
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from .serializers import AddNewPatientSerializer, PatientSerializer, AddPatientRecordSerializer, PatientRecordSerializer
