@@ -2,72 +2,101 @@ import React, { Component } from "react";
 import Refeicao from "./Refeicao";
 import TabelaRefeicoes from "./TabelaRefeicoes";
 import Infos from "./Infos";
-import {
-  Menu,
-  Label,
-  Segment,
-  Grid,
-  GridColumn,
-  Dropdown,
-  GridRow,
-  Ref,
-  Button
-} from "semantic-ui-react";
+import { Grid, Button } from "semantic-ui-react";
 
+const atributos = ["proteinas", "gorduras"];
 const COMIDAS = {
   DISPONIVEIS: ["sushi", "abacaxi", "pimentao"]
 };
 
-const foodmap = {
-  sushi: {
-    proteinas: 10,
-    gorduras: 50
-  },
-  abacaxi: {
-    proteinas: 1,
-    gorduras: 5
-  },
-  pimentao: {
-    proteinas: 0,
-    gorduras: 40
-  }
-};
-
 class Cardapio extends Component {
   state = {
-    refeicao: "1",
-    valorNutricional: [["proteinas", 0], ["gorduras", 0]]
+    refeicao: 0,
+    valorNutricional: [["proteinas", 0], ["gorduras", 0]],
+    cardapios: [[], [], [], [], [], []]
   };
 
-  handleRefeicao = (e, { name }) => {
+  componentWillMount = () => {
     this.setState({
-      refeicao: name
+      factors: [
+        this.initializeFactors(),
+        this.initializeFactors(),
+        this.initializeFactors(),
+        this.initializeFactors(),
+        this.initializeFactors(),
+        this.initializeFactors()
+      ]
     });
   };
 
-  handleCardapio = cardapio => {
-    var proteinas = 0;
-    var gorduras = 0;
-    cardapio.map(food => {
-      proteinas = proteinas + foodmap[food].proteinas;
-      gorduras = gorduras + foodmap[food].gorduras;
+  initializeFactors = () => {
+    let factors = {};
+    COMIDAS.DISPONIVEIS.map(comida => {
+      factors[comida] = 1;
     });
-    let valorNutricional = [["proteinas", proteinas], ["gorduras", gorduras]];
-    console.log(valorNutricional);
-    this.setState({
-      valorNutricional: valorNutricional
+    return factors;
+  };
+
+  handleTransicaoRefeicao = (e, { name, value }) => {
+    if (name === "Next")
+      this.setState(prevState => ({ refeicao: prevState.refeicao + 1 }));
+    else if (name === "Prev")
+      this.setState(prevState => {
+        if (prevState.refeicao > 0) return { refeicao: prevState.refeicao - 1 };
+        else return { refeicao: 0 };
+      });
+    else if (name === "Infos") {
+      this.setState({
+        refeicao: value
+      });
+    }
+  };
+
+  handleCardapios = (refeicao, cardapio) => {
+    this.setState(prevState => {
+      const cardapios = prevState.cardapios.map((item, j) => {
+        if (j === refeicao) {
+          return cardapio;
+        } else {
+          return item;
+        }
+      });
+      return { cardapios: cardapios };
     });
+  };
+
+  handleFactors = (refeicao, factors_local) => {
+    this.setState(prevState => {
+      const factors = prevState.factors.map((item, j) => {
+        if (j === refeicao) {
+          return factors_local;
+        } else {
+          return item;
+        }
+      });
+      return { factors: factors };
+    });
+  };
+
+  handleInfos = valorNutricional => {
+    this.setState({ valorNutricional: valorNutricional });
   };
 
   render() {
-    const { refeicao, valorNutricional, cardapio } = this.state;
-    //console.log(foodmap["sushi"].proteinas);
+    const { refeicao, valorNutricional, cardapios, factors } = this.state;
+
+    const COMIDAS = {
+      DISPONIVEIS: ["sushi", "abacaxi", "pimentao"]
+    };
+    if (refeicao >= 6) {
+      return <div> fim </div>;
+    }
     return (
       <div>
         <Grid>
           <Grid.Column width={2}>
             <TabelaRefeicoes
-              handleRefeicao={this.handleRefeicao}
+              handleRefeicao={this.handleTransicaoRefeicao}
               refeicao={refeicao}
             ></TabelaRefeicoes>
           </Grid.Column>
@@ -77,20 +106,28 @@ class Cardapio extends Component {
             </h4>
           </Grid.Column>
           <Grid.Column width={8}>
-            {/*aqui fazer switch de qual refeicao aparecer*/}
             <Refeicao
               refeicao={refeicao}
-              COMIDAS={COMIDAS}
-              handleCardapio={this.handleCardapio}
+              COMIDAS={COMIDAS.DISPONIVEIS}
+              cardapios={cardapios}
+              handleCardapios={this.handleCardapios}
+              atributos={atributos}
+              handleInfos={this.handleInfos}
+              factors={factors}
+              handleFactors={this.handleFactors}
             ></Refeicao>
             <br></br>
             <br></br>
             <Grid>
               <Grid.Column floated="left">
-                <Button>Prev</Button>
+                <Button name={"Prev"} onClick={this.handleTransicaoRefeicao}>
+                  Prev
+                </Button>
               </Grid.Column>
               <Grid.Column floated="right">
-                <Button>Next</Button>
+                <Button name={"Next"} onClick={this.handleTransicaoRefeicao}>
+                  Next
+                </Button>
               </Grid.Column>
             </Grid>
           </Grid.Column>
