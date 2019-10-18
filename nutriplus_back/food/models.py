@@ -6,7 +6,7 @@ class Food(models.Model):
     food_group = models.CharField(max_length=60)
     measure_total_grams = models.FloatField(default=100) # in grams
     measure_type = models.CharField(max_length=60) # homemade measure, such as a tablespoon or a cup of tea
-    measure_amount = models.IntegerField() # amount of mearue_type to reach measure_total_grams
+    measure_amount = models.IntegerField() # amount of measure_type to reach measure_total_grams
     calories = models.FloatField(default=0) # calories per measure
     proteins = models.FloatField(default=0) # proteins per measure
     carbohydrates = models.FloatField(default=0) # carbohydrates per measure
