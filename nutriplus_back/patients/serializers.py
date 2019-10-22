@@ -18,6 +18,7 @@ class PatientFoodSerializer(serializers.ModelSerializer):
 
 class PatientSerializer(serializers.ModelSerializer):
     food_restrictions = PatientFoodSerializer(read_only=True, many=True)
+    date_of_birth = serializers.DateField(format="%d/%m/%Y", input_formats=["%d/%m/%Y"])
 
     class Meta:
         model = Patients
@@ -25,6 +26,8 @@ class PatientSerializer(serializers.ModelSerializer):
 
 
 class PatientRecordSerializer(serializers.ModelSerializer):
+    date_modified = serializers.DateField(format="%d/%m/%Y", input_formats=["%d/%m/%Y"])
+
     class Meta:
         model = PatientRecord
         fields = ('id', 'patient', 'corporal_mass', 'height', 'BMI',
