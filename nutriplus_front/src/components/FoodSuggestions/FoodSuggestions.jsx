@@ -10,14 +10,13 @@ const COMIDAS = {
 };
 
 class Cardapio extends Component {
-  state = {
-    refeicao: 0,
-    valorNutricional: [["proteinas", 0], ["gorduras", 0]],
-    cardapios: [[], [], [], [], [], []]
-  };
+  state = {};
 
-  componentWillMount = () => {
+  componentDidMount = async () => {
     this.setState({
+      refeicao: 0,
+      valorNutricional: [["proteinas", 0], ["gorduras", 0]],
+      cardapios: [[], [], [], [], [], []],
       factors: [
         this.initializeFactors(),
         this.initializeFactors(),
@@ -26,6 +25,22 @@ class Cardapio extends Component {
         this.initializeFactors(),
         this.initializeFactors()
       ]
+    });
+
+    let token = localStorage.getItem("stored_token");
+    const res = await fetch("http://localhost:8080/foods/list-foods/", {
+      method: "get",
+      headers: new Headers({
+        Authorization: "Port " + token,
+        "Content-Type": "application/json"
+      })
+    });
+    console.log(res);
+    const info = await res.json();
+    console.log(info);
+    //if (info[0]) this.setState({ res: info[0].food_name });
+    this.setState({
+      mounted: 1
     });
   };
 
@@ -91,49 +106,51 @@ class Cardapio extends Component {
     if (refeicao >= 6) {
       return <div> fim </div>;
     }
-    return (
-      <div>
-        <Grid>
-          <Grid.Column width={2}>
-            <TabelaRefeicoes
-              handleRefeicao={this.handleTransicaoRefeicao}
-              refeicao={refeicao}
-            ></TabelaRefeicoes>
-          </Grid.Column>
-          <Grid.Column width={3}>
-            <h4>
-              <Infos valorNutricional={valorNutricional}></Infos>
-            </h4>
-          </Grid.Column>
-          <Grid.Column width={8}>
-            <Refeicao
-              refeicao={refeicao}
-              COMIDAS={COMIDAS.DISPONIVEIS}
-              cardapios={cardapios}
-              handleCardapios={this.handleCardapios}
-              atributos={atributos}
-              handleInfos={this.handleInfos}
-              factors={factors}
-              handleFactors={this.handleFactors}
-            ></Refeicao>
-            <br></br>
-            <br></br>
-            <Grid>
-              <Grid.Column floated="left">
-                <Button name={"Prev"} onClick={this.handleTransicaoRefeicao}>
-                  Prev
-                </Button>
-              </Grid.Column>
-              <Grid.Column floated="right">
-                <Button name={"Next"} onClick={this.handleTransicaoRefeicao}>
-                  Next
-                </Button>
-              </Grid.Column>
-            </Grid>
-          </Grid.Column>
-        </Grid>
-      </div>
-    );
+    if (this.state.mounted)
+      return (
+        <div>
+          <Grid>
+            <Grid.Column width={2}>
+              <TabelaRefeicoes
+                handleRefeicao={this.handleTransicaoRefeicao}
+                refeicao={refeicao}
+              ></TabelaRefeicoes>
+            </Grid.Column>
+            <Grid.Column width={3}>
+              <h4>
+                <Infos valorNutricional={valorNutricional}></Infos>
+              </h4>
+            </Grid.Column>
+            <Grid.Column width={8}>
+              <Refeicao
+                refeicao={refeicao}
+                COMIDAS={COMIDAS.DISPONIVEIS}
+                cardapios={cardapios}
+                handleCardapios={this.handleCardapios}
+                atributos={atributos}
+                handleInfos={this.handleInfos}
+                factors={factors}
+                handleFactors={this.handleFactors}
+              ></Refeicao>
+              <br></br>
+              <br></br>
+              <Grid>
+                <Grid.Column floated="left">
+                  <Button name={"Prev"} onClick={this.handleTransicaoRefeicao}>
+                    Prev
+                  </Button>
+                </Grid.Column>
+                <Grid.Column floated="right">
+                  <Button name={"Next"} onClick={this.handleTransicaoRefeicao}>
+                    Next
+                  </Button>
+                </Grid.Column>
+              </Grid>
+            </Grid.Column>
+          </Grid>
+        </div>
+      );
+    else return "";
   }
 }
 

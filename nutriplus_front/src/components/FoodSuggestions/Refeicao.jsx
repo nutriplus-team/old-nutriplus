@@ -31,7 +31,7 @@ class Refeicao extends Component {
     Cardapio: []
   };
 
-  componentWillMount = () => {
+  componentDidMount = () => {
     this.setState({
       Disponiveis: this.comidas_restantes(
         this.props.COMIDAS,
