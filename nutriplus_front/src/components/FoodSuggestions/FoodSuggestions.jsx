@@ -4,29 +4,17 @@ import TabelaRefeicoes from "./TabelaRefeicoes";
 import Infos from "./Infos";
 import { Grid, Button } from "semantic-ui-react";
 
-const atributos = ["proteinas", "gorduras"];
-const COMIDAS = {
-  DISPONIVEIS: ["sushi", "abacaxi", "pimentao"]
-};
+const atributos = [
+  "Valor Energético (kCal)",
+  "Carboidratos",
+  "Proteínas",
+  "Lipídios"
+];
 
 class Cardapio extends Component {
   state = {};
 
   componentDidMount = async () => {
-    this.setState({
-      refeicao: 0,
-      valorNutricional: [["proteinas", 0], ["gorduras", 0]],
-      cardapios: [[], [], [], [], [], []],
-      factors: [
-        this.initializeFactors(),
-        this.initializeFactors(),
-        this.initializeFactors(),
-        this.initializeFactors(),
-        this.initializeFactors(),
-        this.initializeFactors()
-      ]
-    });
-
     let token = localStorage.getItem("stored_token");
     const res = await fetch("http://localhost:8080/foods/list-foods/", {
       method: "get",
@@ -35,10 +23,39 @@ class Cardapio extends Component {
         "Content-Type": "application/json"
       })
     });
-    console.log(res);
     const info = await res.json();
     console.log(info);
     //if (info[0]) this.setState({ res: info[0].food_name });
+    await new Promise(resolve => {
+      this.setState({ COMIDAS: info }, () => {
+        resolve();
+      });
+    });
+    await new Promise(resolve => {
+      this.setState(
+        {
+          refeicao: 0,
+          valorNutricional: [
+            [atributos[0], 0],
+            [atributos[1], 0],
+            [atributos[2], 0],
+            [atributos[3], 0]
+          ],
+          cardapios: [[], [], [], [], [], []],
+          factors: [
+            this.initializeFactors(),
+            this.initializeFactors(),
+            this.initializeFactors(),
+            this.initializeFactors(),
+            this.initializeFactors(),
+            this.initializeFactors()
+          ]
+        },
+        () => {
+          resolve();
+        }
+      );
+    });
     this.setState({
       mounted: 1
     });
@@ -46,8 +63,9 @@ class Cardapio extends Component {
 
   initializeFactors = () => {
     let factors = {};
-    COMIDAS.DISPONIVEIS.map(comida => {
-      factors[comida] = 1;
+    const COMIDAS = this.state.COMIDAS;
+    COMIDAS.map(comida => {
+      factors[comida.food_name] = 1;
     });
     return factors;
   };
@@ -98,11 +116,14 @@ class Cardapio extends Component {
   };
 
   render() {
-    const { refeicao, valorNutricional, cardapios, factors } = this.state;
+    const {
+      refeicao,
+      valorNutricional,
+      cardapios,
+      factors,
+      COMIDAS
+    } = this.state;
 
-    const COMIDAS = {
-      DISPONIVEIS: ["sushi", "abacaxi", "pimentao"]
-    };
     if (refeicao >= 6) {
       return <div> fim </div>;
     }
@@ -124,7 +145,7 @@ class Cardapio extends Component {
             <Grid.Column width={8}>
               <Refeicao
                 refeicao={refeicao}
-                COMIDAS={COMIDAS.DISPONIVEIS}
+                COMIDAS={COMIDAS.slice(1, 5)}
                 cardapios={cardapios}
                 handleCardapios={this.handleCardapios}
                 atributos={atributos}
