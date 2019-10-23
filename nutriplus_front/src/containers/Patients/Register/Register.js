@@ -1,8 +1,18 @@
 import React, { Component } from "react";
-import { Button, Form, Grid, Header, Segment } from "semantic-ui-react";
+import { Button, Form, Grid, Header, Segment, Icon } from "semantic-ui-react";
+import classes from "./Register.module.css";
 
 class Register extends Component {
-  state = { name: "", dob: "", restrictions: "", likedFoods: "", message: "" };
+  state = {
+    name: "",
+    dob: "",
+    restrictions: [],
+    restrictionQuery: "",
+    queryResults: null,
+    message: "",
+    hasNext: false,
+    hasPrevious: false
+  };
 
   register = async () => {
     const day = +this.state.dob.slice(0, 2);
@@ -43,7 +53,11 @@ class Register extends Component {
       JSON.stringify({
         patient: this.state.name,
         date_of_birth: this.state.dob,
-        food_choices: ""
+        food_restrictions: this.state.restrictions.reduce(
+          (total, actual, index, arr) =>
+            total + actual.id + (index === arr.length - 1 ? "" : "&"),
+          ""
+        )
       })
     );
     const res = await fetch("http://localhost:8080/patients/add-new/", {
@@ -51,8 +65,11 @@ class Register extends Component {
       body: JSON.stringify({
         patient: this.state.name,
         date_of_birth: this.state.dob,
-        food_choices: this.state.likedFoods,
-        food_restrictions: this.state.restrictions
+        food_restrictions: this.state.restrictions.reduce(
+          (total, actual, index, arr) =>
+            total + actual.id + (index === arr.length - 1 ? "" : "&"),
+          ""
+        )
       }),
       headers: new Headers({
         Authorization: "Port " + localStorage.getItem("stored_token"),
@@ -60,21 +77,22 @@ class Register extends Component {
       })
     });
     console.log(res);
-    const answ = await res;
-    const info = await answ.json();
-    if (answ.status === 400) {
+    const info = await res.json();
+    if (res.status === 400) {
       this.setState({ message: "Houve um erro no cadastro." });
       console.log(info);
-    } else if (answ.status === 200) {
+    } else if (res.status === 200) {
       this.setState({
         message: "Cadastro realizado com sucesso!",
         name: "",
         dob: "",
-        restrictions: "",
-        likedFoods: ""
+        restrictionQuery: "",
+        restrictions: [],
+        likedFoods: "",
+        queryResults: null
       });
       console.log(info);
-    } else if (answ.status === 401) {
+    } else if (res.status === 401) {
       this.setState({
         message: "A sua sessão expirou! Por favor dê logout e login de novo."
       });
@@ -92,6 +110,49 @@ class Register extends Component {
       //   localStorage.setItem("stored_token", info2.access);
       //   this.setState({ message: "Sessão restaurada!" });
     }
+  };
+
+  // use as handleChangePage("next") or handleChangePage("previous")
+  handleChangePage = async str => {
+    const res = await fetch(this.state.queryResults[str], {
+      method: "get",
+      headers: new Headers({
+        Authorization: "Port " + localStorage.getItem("stored_token")
+      })
+    });
+    console.log(res);
+    const info = await res.json();
+    if (res.status === 400) {
+      this.setState({ message: "Houve um erro no cadastro." });
+      console.log(info);
+    } else if (res.status === 200) {
+      this.setState({
+        queryResults: info
+      });
+      if (info.previous) {
+        this.setState({ hasPrevious: true });
+      } else {
+        this.setState({ hasPrevious: false });
+      }
+      if (info.next) {
+        this.setState({ hasNext: true });
+      } else {
+        this.setState({ hasNext: false });
+      }
+      console.log(info);
+    } else if (res.status === 401) {
+      this.setState({
+        message: "A sua sessão expirou! Por favor dê logout e login de novo."
+      });
+    }
+  };
+
+  handlefoodClick = food => {
+    this.setState(prevState => ({
+      restrictions: [...prevState.restrictions, food],
+      restrictionQuery: "",
+      queryResults: null
+    }));
   };
 
   render() {
@@ -147,29 +208,102 @@ class Register extends Component {
                 }}
               />
               <Form.Input
-                icon="food"
-                iconPosition="left"
-                placeholder="Preferências alimentares"
-                onChange={event => {
-                  this.setState({
-                    likedFoods: event.target.value,
-                    message: ""
-                  });
-                }}
-                value={this.state.likedFoods}
-              />
-              <Form.Input
-                icon="ban"
+                icon="search"
                 iconPosition="left"
                 placeholder="Restrições alimentares (opcional)"
-                onChange={event => {
+                onChange={async event => {
                   this.setState({
-                    restrictions: event.target.value,
+                    restrictionQuery: event.target.value,
                     message: ""
                   });
+                  if (event.target.value !== "") {
+                    const res = await fetch(
+                      "http://localhost:8080/foods/search/" +
+                        event.target.value +
+                        "/",
+                      {
+                        method: "get",
+                        headers: new Headers({
+                          Authorization:
+                            "Port " + localStorage.getItem("stored_token")
+                        })
+                      }
+                    );
+                    console.log(res);
+                    const info = await res.json();
+                    if (res.status === 400) {
+                      this.setState({ message: "Houve um erro no cadastro." });
+                      console.log(info);
+                    } else if (res.status === 200) {
+                      this.setState({
+                        queryResults: info
+                      });
+                      if (info.next) {
+                        this.setState({ hasNext: true });
+                      } else {
+                        this.setState({ hasNext: false });
+                      }
+                      this.setState({ hasPrevious: false });
+                      console.log(info);
+                    } else if (res.status === 401) {
+                      this.setState({
+                        message:
+                          "A sua sessão expirou! Por favor dê logout e login de novo."
+                      });
+                    }
+                  } else {
+                    this.setState({ queryResults: null });
+                  }
                 }}
-                value={this.state.restrictions}
+                value={this.state.restrictionQuery}
               />
+              {this.state.restrictions.length === 0 ? null : (
+                <ul>
+                  {this.state.restrictions.map(food => (
+                    <li key={food.id}>{food.food_name}</li>
+                  ))}
+                </ul>
+              )}
+              {this.state.queryResults ? (
+                <React.Fragment>
+                  <hr />
+                  {this.state.queryResults.results
+                    .filter(
+                      food =>
+                        !this.state.restrictions.some(
+                          state_food => state_food.food_name == food.food_name
+                        )
+                    )
+                    .map(obj => (
+                      <p
+                        key={obj.id}
+                        className={classes.Food}
+                        onClick={() => this.handlefoodClick(obj)}
+                      >
+                        {obj.food_name}
+                      </p>
+                    ))}
+                  <Button
+                    onClick={() => this.handleChangePage("previous")}
+                    icon
+                    floated="left"
+                    size="mini"
+                    disabled={!this.state.hasPrevious}
+                  >
+                    <Icon name="angle double left" />
+                  </Button>
+
+                  <Button
+                    onClick={() => this.handleChangePage("next")}
+                    disabled={!this.state.hasNext}
+                    icon
+                    floated="right"
+                    size="mini"
+                  >
+                    <Icon name="angle double right" />
+                  </Button>
+                </React.Fragment>
+              ) : null}
               <Button color="teal" fluid size="large" onClick={this.register}>
                 Registrar paciente
               </Button>

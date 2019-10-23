@@ -1,0 +1,12 @@
+.record {
+  padding: 10px;
+  width: 40%;
+  margin: 25px auto;
+  outline: 1px lightgray solid;
+  display: flex;
+  cursor: pointer;
+}
+
+.record span {
+  margin: 10px;
+}

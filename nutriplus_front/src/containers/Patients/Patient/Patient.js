@@ -1,13 +1,13 @@
 import React, { Component } from "react";
 import { Button } from "semantic-ui-react";
-import { NavLink } from "react-router-dom";
+import classes from "./Patient.module.css";
 
 class Patient extends Component {
   state = { records: null, info: null, error: null };
 
   componentDidMount = async () => {
     const params = this.props.match.params;
-    const res = await fetch(
+    const patientInfoRes = await fetch(
       "http://localhost:8080/patients/get-info/" + params["id"] + "/",
       {
         method: "get",
@@ -16,18 +16,43 @@ class Patient extends Component {
         })
       }
     );
-    const info = await res.json();
-    if (res.status === 400) {
+    const patientInfo = await patientInfoRes.json();
+    if (patientInfoRes.status === 400) {
       this.setState({
         error: "Houve algum problema ao tentar carregar os dados do paciente!"
       });
-      console.log(res);
-      console.log(info);
-    } else if (res.status === 200) {
-      this.setState({ info: info });
-      console.log(info);
-    } else if (res.status === 401) {
-      console.log(res);
+      //console.log(patientInfoRes);
+      //console.log(patientInfo);
+    } else if (patientInfoRes.status === 200) {
+      this.setState({ info: patientInfo });
+      //console.log(patientInfo);
+    } else if (patientInfoRes.status === 401) {
+      //console.log(patientInfoRes);
+      this.setState({
+        error: "A sua sessão expirou! Por favor dê logout e login de novo."
+      });
+    }
+    const recordInfoRes = await fetch(
+      "http://localhost:8080/patients/get-records/" + params["id"] + "/",
+      {
+        method: "get",
+        headers: new Headers({
+          Authorization: "Port " + localStorage.getItem("stored_token")
+        })
+      }
+    );
+    const recordInfo = await recordInfoRes.json();
+    if (recordInfoRes.status === 400) {
+      this.setState({
+        error: "Houve algum problema ao tentar carregar as fichas do paciente!"
+      });
+      //console.log(recordInfoRes);
+      //console.log(recordInfo);
+    } else if (recordInfoRes.status === 200) {
+      this.setState({ records: recordInfo.results });
+      //console.log(recordInfo);
+    } else if (recordInfoRes.status === 401) {
+      //console.log(recordInfoRes);
       this.setState({
         error: "A sua sessão expirou! Por favor dê logout e login de novo."
       });
@@ -47,9 +72,14 @@ class Patient extends Component {
               Restrições alimentares:{" "}
               {this.state.info.food_restrictions.length === 0
                 ? "Não há"
-                : this.state.info.food_restrictions}
+                : this.state.info.food_restrictions.reduce(
+                    (bigString, elem, index, arr) =>
+                      bigString +
+                      elem.food_name +
+                      (index === arr.length - 1 ? "" : ", "),
+                    ""
+                  )}
             </p>
-            <p>Preferências alimentares: {this.state.info.food_choices}</p>
           </div>
         ) : null}
         <Button
@@ -64,19 +94,27 @@ class Patient extends Component {
           Criar ficha para o paciente
         </Button>
         {this.state.records ? (
-          <ul>
+          <div>
             {this.state.records.map(record => (
-              <li key={record.id}>
-                <NavLink
-                  to={"/pacientes/" + params["id"] + "/ficha/" + record.id}
-                >
-                  {record.id}
-                </NavLink>
-              </li>
+              <div
+                key={record.id}
+                onClick={() =>
+                  this.props.history.push(
+                    "/pacientes/" + params["id"] + "/ficha/" + record.id
+                  )
+                }
+              >
+                <p className={classes.record}>
+                  <span>Modificado em: {record.date_modified}</span>
+                  <span>Peso: {record.corporal_mass}</span>
+                  <span>Altura: {record.height}</span>
+                  <span>IMC: {record.BMI}</span>
+                </p>
+              </div>
             ))}
-          </ul>
+          </div>
         ) : (
-          <p>Não há fichas para esse paciente!</p>
+          <p>Ainda não há uma ficha para esse paciente!</p>
         )}
       </div>
     );

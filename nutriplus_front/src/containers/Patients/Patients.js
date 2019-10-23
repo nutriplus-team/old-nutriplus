@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import Patient from "./Patient/Patient";
 import { Button } from "semantic-ui-react";
 import Register from "./Register/Register";
+import PatientRecordCreator from "./PatientRecord/PatientRecordCreator/PatientRecordCreator";
 import PatientRecord from "./PatientRecord/PatientRecord";
 import { Route, Switch, NavLink } from "react-router-dom";
 
@@ -24,11 +25,11 @@ class Patients extends Component {
       this.setState({
         error: "Houve algum problema ao tentar carregar os pacientes!"
       });
-      console.log(answ);
-      console.log(info);
+      //console.log(answ);
+      //console.log(info);
     } else if (answ.status === 200) {
       this.setState({ patients: info.results, error: null });
-      console.log(info);
+      //console.log(info);
     } else if (answ.status === 401) {
       this.setState({
         error: "A sua sessão expirou! Por favor dê logout e login de novo."
@@ -47,6 +48,10 @@ class Patients extends Component {
           <Route
             exact
             path="/pacientes/:id/criar-ficha"
+            render={props => <PatientRecordCreator {...props} />}
+          />
+          <Route
+            path="/pacientes/:id/ficha/:ficha_id"
             render={props => <PatientRecord {...props} />}
           />
           <Route
@@ -82,6 +87,7 @@ class Patients extends Component {
               </div>
             )}
           />
+          <Route path="/" render={() => <p>WHY?</p>} />
         </Switch>
       </div>
     );
