@@ -1,12 +1,12 @@
 from django.db import models
 from django.contrib.auth.models import User
+from food.models import Food
 
 
 class Patients(models.Model):
     name = models.CharField(max_length=120)
     date_of_birth = models.DateField()
-    food_choices = models.CharField(max_length=200)
-    food_restrictions = models.CharField(max_length=200, blank=True)
+    food_restrictions = models.ManyToManyField(Food)
     nutritionist = models.ForeignKey(User, on_delete=models.CASCADE)
 
 

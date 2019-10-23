@@ -1,21 +1,33 @@
 from rest_framework import serializers
 from .models import Patients, PatientRecord
 
+from food.models import Food
+
 
 class AddNewPatientSerializer(serializers.Serializer):
     patient = serializers.CharField(max_length=120)
     date_of_birth = serializers.DateField(format="%d/%m/%Y", input_formats=["%d/%m/%Y"])
-    food_choices = serializers.CharField(max_length=200)
-    food_restrictions = serializers.CharField(max_length=200, allow_blank=True)
+    food_restrictions = serializers.CharField(max_length=500, allow_blank=True)
+
+
+class PatientFoodSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Food
+        fields = ('id', 'food_name', 'food_group')
 
 
 class PatientSerializer(serializers.ModelSerializer):
+    food_restrictions = PatientFoodSerializer(read_only=True, many=True)
+    date_of_birth = serializers.DateField(format="%d/%m/%Y", input_formats=["%d/%m/%Y"])
+
     class Meta:
         model = Patients
-        fields = ('id', 'name', 'date_of_birth', 'food_choices', 'food_restrictions')
+        fields = ('id', 'name', 'date_of_birth', 'food_restrictions')
 
 
 class PatientRecordSerializer(serializers.ModelSerializer):
+    date_modified = serializers.DateField(format="%d/%m/%Y", input_formats=["%d/%m/%Y"])
+
     class Meta:
         model = PatientRecord
         fields = ('id', 'patient', 'corporal_mass', 'height', 'BMI',

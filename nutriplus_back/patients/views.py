@@ -4,6 +4,7 @@ from rest_framework.response import Response
 
 from .serializers import AddNewPatientSerializer, PatientSerializer, AddPatientRecordSerializer, PatientRecordSerializer
 from .models import Patients, PatientRecord
+from food.models import Food
 
 from django.db.models import Q
 import datetime
@@ -23,10 +24,12 @@ class AddNewPatient(generics.CreateAPIView):
             new_entry = Patients()
             new_entry.name = serializer.validated_data['patient']
             new_entry.date_of_birth = serializer.validated_data['date_of_birth']
-            new_entry.food_choices = serializer.validated_data['food_choices']
-            new_entry.food_restrictions = serializer.validated_data['food_restrictions']
             new_entry.nutritionist = request.user
             new_entry.save()
+
+            food_restrictions = str(serializer.validated_data['food_restrictions'])
+            list_of_foods = food_restrictions.split('&')
+            new_entry.food_restrictions.set(Food.objects.filter(pk__in=list_of_foods))
 
             new_serializer = PatientSerializer(new_entry)
 
@@ -53,15 +56,18 @@ class EditPatient(generics.UpdateAPIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, id):
-        #id = self.kwargs['id']
         serializer = AddNewPatientSerializer(data=request.data)
         if serializer.is_valid():
             entry = Patients.objects.get(pk=id)
             entry.name = serializer.validated_data['patient']
             entry.date_of_birth = serializer.validated_data['date_of_birth']
-            entry.food_choices = serializer.validated_data['food_choices']
-            entry.food_restrictions = serializer.validated_data['food_restrictions']
+
+            food_restrictions = str(serializer.validated_data['food_restrictions'])
+            list_of_foods = food_restrictions.split('&')
+            entry.food_restrictions.set(Food.objects.filter(pk__in=list_of_foods))
+
             entry.save()
+
 
             new_serializer = PatientSerializer(entry)
 
@@ -202,3 +208,4 @@ class GetSingleRecord(generics.GenericAPIView):
 
         serializer = PatientRecordSerializer(record)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
