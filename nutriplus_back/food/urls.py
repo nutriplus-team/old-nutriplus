@@ -1,6 +1,6 @@
 from django.urls import path, re_path
 from django.conf.urls import url
-from .views import AddNewFood, EditFood, ListFoods, ListFoodsPagination, SearchFood
+from .views import AddNewFood, EditFood, ListFoods, ListFoodsPagination, SearchFood, RemoveFood
 
 urlpatterns = [
     path(r'add-new/', AddNewFood.as_view(), name='NewFoodAddition'),
@@ -8,5 +8,6 @@ urlpatterns = [
     path(r'list-foods/', ListFoods.as_view(), name='ListFoods'),
     path(r'list-foods-pagination/', ListFoodsPagination.as_view(), name='ListFoods'),
     re_path(r'search/(?P<food_name>[\w ]+)/', SearchFood.as_view(), name='SearchFood'),
+    path(r'remove/<int:id>/', RemoveFood.as_view(), name='EditFood'),
 
 ]
