@@ -14,7 +14,7 @@ class Food(models.Model):
     measure_total_grams = models.FloatField(default=100) # in grams
     measure_type = models.CharField(max_length=60) # homemade measure, such as a tablespoon or a cup of tea
     measure_amount = models.IntegerField() # amount of measure_type to reach measure_total_grams
-    nutrition_facts = models.ForeignKey(NutritionFacts)
+    nutrition_facts = models.ForeignKey(NutritionFacts, on_delete=models.CASCADE)
     meal_number = models.IntegerField(default=0)
     # 1 = breakfast
     # 2 = morning snack
