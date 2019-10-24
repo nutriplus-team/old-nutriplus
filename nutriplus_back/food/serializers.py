@@ -12,6 +12,7 @@ class AddNewFoodSerializer(serializers.Serializer):
     proteins = serializers.FloatField()  # proteins per measure_total_grams
     carbohydrates = serializers.FloatField()  # carbohydrates per measure_total_grams
     lipids = serializers.FloatField()  # lipids per measure_total_grams
+    meal_number = serializers.IntegerField()
 
 
 class NutritionFactsSerializer(serializers.ModelSerializer):
@@ -25,5 +26,5 @@ class FoodSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Food
-        fields = ('id', 'food_name', 'food_group', 'measure_total_grams', 'measure_type', 'measure_amount',
-                  'nutrition_facts')
+        fields = ('id', 'food_name', 'meal_number', 'food_group', 'measure_total_grams', 'measure_type',
+                  'measure_amount', 'nutrition_facts')
