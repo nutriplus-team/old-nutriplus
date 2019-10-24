@@ -14,13 +14,13 @@ class AddNewFoodSerializer(serializers.Serializer):
     lipids = serializers.FloatField()  # lipids per measure_total_grams
 
 
-class NutritionFactsSerializer(serializers.Serializer):
+class NutritionFactsSerializer(serializers.ModelSerializer):
     class Meta:
         model = NutritionFacts
         fields = ('calories', 'proteins', 'carbohydrates', 'lipids')
 
 
-class FoodSerializer(serializers.Serializer):
+class FoodSerializer(serializers.ModelSerializer):
     nutrition_facts = NutritionFactsSerializer()
 
     class Meta:

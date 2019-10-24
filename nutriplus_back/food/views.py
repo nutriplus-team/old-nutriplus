@@ -19,19 +19,23 @@ class AddNewFood(generics.CreateAPIView):
     def post(self, request, *args, **kwargs):
         serializer = AddNewFoodSerializer(data=request.data)
         if serializer.is_valid():
-            new_entry = Food()
-            new_entry.food_name = serializer.validated_data['food_name']
-            new_entry.food_group = serializer.validated_data['food_group']
-            new_entry.measure_total_grams = serializer.validated_data['measure_total_grams']
-            new_entry.measure_type = serializer.validated_data['measure_type']
-            new_entry.measure_amount = serializer.validated_data['measure_amount']
-            new_entry.nutrition_facts.calories = serializer.validated_data['calories']
-            new_entry.nutrition_facts.proteins = serializer.validated_data['proteins']
-            new_entry.nutrition_facts.carbohydrates = serializer.validated_data['carbohydrates']
-            new_entry.nutrition_facts.lipids = serializer.validated_data['lipids']
-            new_entry.save()
+            new_nutrition_facts = NutritionFacts()
+            new_nutrition_facts.calories = serializer.validated_data['calories']
+            new_nutrition_facts.proteins = serializer.validated_data['proteins']
+            new_nutrition_facts.carbohydrates = serializer.validated_data['carbohydrates']
+            new_nutrition_facts.lipids = serializer.validated_data['lipids']
+            new_nutrition_facts.save()
 
-            new_serializer = FoodSerializer(new_entry)
+            new_food = Food()
+            new_food.food_name = serializer.validated_data['food_name']
+            new_food.food_group = serializer.validated_data['food_group']
+            new_food.measure_total_grams = serializer.validated_data['measure_total_grams']
+            new_food.measure_type = serializer.validated_data['measure_type']
+            new_food.measure_amount = serializer.validated_data['measure_amount']
+            new_food.nutrition_facts = new_nutrition_facts
+            new_food.save()
+
+            new_serializer = FoodSerializer(new_food)
 
             return Response({'Info': 'Successfully added', 'New Food': new_serializer.data}, status=status.HTTP_200_OK)
 
