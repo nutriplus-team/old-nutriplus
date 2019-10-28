@@ -1,6 +1,7 @@
 from rest_framework import generics, status, pagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from .serializers import *
 from .models import *
@@ -117,4 +118,13 @@ class SearchFood(generics.ListAPIView):
 
 class RemoveFood(generics.DestroyAPIView):
     permission_classes = (IsAuthenticated, )
-    
+
+
+class GetUnits(APIView):
+    permission_classes = (IsAuthenticated, )
+    def get(self, request):
+        return Response({'calories': 'kcal',
+                         'proteins': 'g',
+                         'carbohydrates': 'g',
+                         'lipids': 'g',
+                         'fiber': 'g'}, status=status.HTTP_200_OK)
