@@ -9,6 +9,7 @@ urlpatterns = [
     path(r'list-foods-pagination/', ListFoodsPagination.as_view(), name='ListFoods'),
     re_path(r'search/(?P<food_name>[\w ]+)/', SearchFood.as_view(), name='SearchFood'),
     path(r'remove/<int:id>/', RemoveFood.as_view(), name='RemoveFood'),
+    path(r'remove-all/', RemoveAllFood.as_view(), name='RemoveAllFood'),
     path(r'get-units/', GetUnits.as_view(), name='GetUnits'),
 
 ]
