@@ -6,6 +6,7 @@ class NutritionFacts(models.Model):
     proteins = models.FloatField(default=0) # proteins per measure_total_grams
     carbohydrates = models.FloatField(default=0) # carbohydrates per measure_total_grams
     lipids = models.FloatField(default=0) # lipids per measure_total_grams
+    fiber = models.FloatField(default=0) # fiber per measure_total_grams
 
 
 class Food(models.Model):

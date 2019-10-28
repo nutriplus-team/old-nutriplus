@@ -28,8 +28,11 @@ class AddNewPatient(generics.CreateAPIView):
             new_entry.save()
 
             food_restrictions = str(serializer.validated_data['food_restrictions'])
-            list_of_foods = food_restrictions.split('&')
-            new_entry.food_restrictions.set(Food.objects.filter(pk__in=list_of_foods))
+            if (len(food_restrictions) > 0):
+                list_of_foods = food_restrictions.split('&')
+                new_entry.food_restrictions.set(Food.objects.filter(pk__in=list_of_foods))
+            else:
+                new_entry.food_restrictions.set([])
 
             new_serializer = PatientSerializer(new_entry)
 

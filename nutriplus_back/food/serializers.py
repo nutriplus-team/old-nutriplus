@@ -12,13 +12,14 @@ class AddNewFoodSerializer(serializers.Serializer):
     proteins = serializers.FloatField()  # proteins per measure_total_grams
     carbohydrates = serializers.FloatField()  # carbohydrates per measure_total_grams
     lipids = serializers.FloatField()  # lipids per measure_total_grams
+    fiber = serializers.FloatField()  # fiber per measure_total_grams
     meal_number = serializers.IntegerField()
 
 
 class NutritionFactsSerializer(serializers.ModelSerializer):
     class Meta:
         model = NutritionFacts
-        fields = ('calories', 'proteins', 'carbohydrates', 'lipids')
+        fields = ('calories', 'proteins', 'carbohydrates', 'lipids', 'fiber')
 
 
 class FoodSerializer(serializers.ModelSerializer):

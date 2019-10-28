@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { sendAuthenticatedRequest } from "../../../../utility/httpHelper";
 import {
   Button,
   Form,
@@ -9,82 +10,51 @@ import {
 } from "semantic-ui-react";
 
 class PatientRecordCreator extends Component {
-  state = { patient: null, weight: "", height: "", obs: "", error: null };
+  state = { patient: null, weight: "", height: "", obs: "", message: null };
 
   componentDidMount = async () => {
     const params = this.props.match.params;
-    const res = await fetch(
+    sendAuthenticatedRequest(
       "http://localhost:8080/patients/get-info/" + params["id"] + "/",
-      {
-        method: "get",
-        headers: new Headers({
-          Authorization: "Port " + localStorage.getItem("stored_token")
-        })
-      }
+      "get",
+      message =>
+        this.setState({
+          message: message
+        }),
+      info => this.setState({ patient: info, message: null })
     );
-    const answ = await res;
-    const info = await answ.json();
-    if (answ.status === 400) {
-      this.setState({
-        error: "Houve algum problema ao tentar acessar a ficha do paciente!"
-      });
-      //console.log(answ);
-      //console.log(info);
-    } else if (answ.status === 200) {
-      this.setState({ patient: info, error: null });
-      //console.log(info);
-    } else if (answ.status === 401) {
-      this.setState({
-        error: "A sua sessão expirou! Por favor dê logout e login de novo."
-      });
-    }
   };
 
   sendForm = async () => {
     const params = this.props.match.params;
     const BMI = +this.state.weight / (+this.state.height * +this.state.height);
-    const res = await fetch(
+    sendAuthenticatedRequest(
       "http://localhost:8080/patients/add-record/" + params["id"] + "/",
-      {
-        method: "post",
-        body: JSON.stringify({
-          corporal_mass: (+this.state.weight).toFixed(2),
-          height: (+this.state.height).toFixed(2),
-          BMI: BMI.toFixed(2),
-          observations: this.state.obs
+      "post",
+      message =>
+        this.setState({
+          message: message
         }),
-        headers: new Headers({
-          Authorization: "Port " + localStorage.getItem("stored_token"),
-          "Content-Type": "application/json"
-        })
-      }
+      () =>
+        this.setState({
+          message: "Ficha salva com sucesso!",
+          weight: "",
+          height: "",
+          obs: ""
+        }),
+      JSON.stringify({
+        corporal_mass: (+this.state.weight).toFixed(2),
+        height: (+this.state.height).toFixed(2),
+        BMI: BMI.toFixed(2),
+        observations: this.state.obs
+      })
     );
-    //console.log(res);
-    const answ = await res;
-    //const info = await answ.json();
-    if (answ.status === 400) {
-      this.setState({ message: "Houve um erro ao salvar a ficha." });
-      //console.log(info);
-    } else if (answ.status === 200) {
-      this.setState({
-        message: "Ficha salva com sucesso!",
-        weight: "",
-        height: "",
-        obs: ""
-      });
-      //console.log(info);
-    } else if (answ.status === 401) {
-      this.setState({
-        message: "A sua sessão expirou! Por favor dê logout e login de novo."
-      });
-    }
   };
 
   render() {
     return (
       <div>
         <h4>Paciente: {this.state.patient ? this.state.patient.name : null}</h4>
-        {this.state.error ? <p>{this.state.error}</p> : null}
         <Grid
           textAlign="center"
           style={{ height: "10vh" }}
@@ -132,7 +102,7 @@ class PatientRecordCreator extends Component {
                 <Button color="teal" fluid size="large" onClick={this.sendForm}>
                   Adicionar ficha
                 </Button>
-                <p>{this.state.message}</p>
+                {this.state.message && <p>{this.state.message}</p>}
               </Segment>
             </Form>
           </Grid.Column>

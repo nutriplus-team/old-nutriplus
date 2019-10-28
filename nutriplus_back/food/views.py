@@ -1,6 +1,7 @@
 from rest_framework import generics, status, pagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from .serializers import *
 from .models import *
@@ -24,6 +25,7 @@ class AddNewFood(generics.CreateAPIView):
             new_nutrition_facts.proteins = serializer.validated_data['proteins']
             new_nutrition_facts.carbohydrates = serializer.validated_data['carbohydrates']
             new_nutrition_facts.lipids = serializer.validated_data['lipids']
+            new_nutrition_facts.fiber = serializer.validated_data['fiber']
             new_nutrition_facts.save()
 
             new_food = Food()
@@ -64,19 +66,24 @@ class EditFood(generics.UpdateAPIView):
         #id = self.kwargs['id']
         serializer = AddNewFoodSerializer(data=request.data)
         if serializer.is_valid():
-            entry = Food.objects.get(pk=id)
-            entry.food_name = serializer.validated_data['food_name']
-            entry.food_group = serializer.validated_data['food_group']
-            entry.measure_total_grams = serializer.validated_data['measure_total_grams']
-            entry.measure_type = serializer.validated_data['measure_type']
-            entry.measure_amount = serializer.validated_data['measure_amount']
-            entry.nutrition_facts.calories = serializer.validated_data['calories']
-            entry.nutrition_facts.proteins = serializer.validated_data['proteins']
-            entry.nutrition_facts.carbohydrates = serializer.validated_data['carbohydrates']
-            entry.nutrition_facts.lipids = serializer.validated_data['lipids']
-            entry.save()
+            food = Food.objects.get(pk=id)
 
-            new_serializer = FoodSerializer(entry)
+            nutrition_facts = food.nutrition_facts
+            nutrition_facts.calories = serializer.validated_data['calories']
+            nutrition_facts.proteins = serializer.validated_data['proteins']
+            nutrition_facts.carbohydrates = serializer.validated_data['carbohydrates']
+            nutrition_facts.lipids = serializer.validated_data['lipids']
+            nutrition_facts.fiber = serializer.validated_data['fiber']
+            nutrition_facts.save()
+
+            food.food_name = serializer.validated_data['food_name']
+            food.food_group = serializer.validated_data['food_group']
+            food.measure_total_grams = serializer.validated_data['measure_total_grams']
+            food.measure_type = serializer.validated_data['measure_type']
+            food.measure_amount = serializer.validated_data['measure_amount']
+            food.save()
+
+            new_serializer = FoodSerializer(food)
 
             return Response({'Info': 'Succesfully edited', 'Food': new_serializer.data},
                             status=status.HTTP_200_OK)
@@ -117,4 +124,13 @@ class SearchFood(generics.ListAPIView):
 
 class RemoveFood(generics.DestroyAPIView):
     permission_classes = (IsAuthenticated, )
-    
+
+
+class GetUnits(APIView):
+    permission_classes = (IsAuthenticated, )
+    def get(self, request):
+        return Response({'calories': 'kcal',
+                         'proteins': 'g',
+                         'carbohydrates': 'g',
+                         'lipids': 'g',
+                         'fiber': 'g'}, status=status.HTTP_200_OK)
