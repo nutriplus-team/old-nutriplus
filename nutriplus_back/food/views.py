@@ -35,7 +35,6 @@ class AddNewFood(generics.CreateAPIView):
             new_food.measure_type = serializer.validated_data['measure_type']
             new_food.measure_amount = serializer.validated_data['measure_amount']
             new_food.nutrition_facts = new_nutrition_facts
-            new_food.meal_number = serializer.validated_data['meal_number']
             new_food.save()
 
             new_serializer = FoodSerializer(new_food)
@@ -134,16 +133,16 @@ class RemoveFood(generics.DestroyAPIView):
 
         serializer = FoodSerializer(food)
         food.delete()
-        return Response({'Info': 'Successfully deleted', 'Food': serializer.data}, status=status.HTTP_200_OK)
+        return Response({'Info': 'Successfully deleted', 'Food': serializer.data}, status=status.HTTP_204_NO_CONTENT)
 
 
 class RemoveAllFood(generics.DestroyAPIView):
     permission_classes = (IsAuthenticated,)
 
-    def get(self, request, *args, **kwargs):
+    def get(self):
         food = Food.objects.all()
         food.delete()
-        return Response({'Info': 'Successfully deleted'}, status=status.HTTP_200_OK)
+        return Response({'Info': 'Successfully deleted'}, status=status.HTTP_204_NO_CONTENT)
 
 
 class GetUnits(APIView):
