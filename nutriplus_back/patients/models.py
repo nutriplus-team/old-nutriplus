@@ -6,7 +6,7 @@ from food.models import Food
 class Patients(models.Model):
     name = models.CharField(max_length=120)
     date_of_birth = models.DateField()
-    food_restrictions = models.ManyToManyField(Food)
+    food_restrictions = models.ManyToManyField(Food, blank=True)
     nutritionist = models.ForeignKey(User, on_delete=models.CASCADE)
 
 
