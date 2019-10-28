@@ -5,36 +5,21 @@ import Register from "./Register/Register";
 import PatientRecordCreator from "./PatientRecord/PatientRecordCreator/PatientRecordCreator";
 import PatientRecord from "./PatientRecord/PatientRecord";
 import { Route, Switch, NavLink } from "react-router-dom";
+import { sendAuthenticatedRequest } from "../../utility/httpHelper";
 
 class Patients extends Component {
   state = { patients: null, error: null };
 
   componentDidMount = async () => {
-    const res = await fetch(
+    sendAuthenticatedRequest(
       "http://localhost:8080/patients/get-all-patients/",
-      {
-        method: "get",
-        headers: new Headers({
-          Authorization: "Port " + localStorage.getItem("stored_token")
-        })
-      }
+      "get",
+      message =>
+        this.setState({
+          error: message
+        }),
+      info => this.setState({ patients: info.results, error: null })
     );
-    const answ = await res;
-    const info = await answ.json();
-    if (answ.status === 400) {
-      this.setState({
-        error: "Houve algum problema ao tentar carregar os pacientes!"
-      });
-      //console.log(answ);
-      //console.log(info);
-    } else if (answ.status === 200) {
-      this.setState({ patients: info.results, error: null });
-      //console.log(info);
-    } else if (answ.status === 401) {
-      this.setState({
-        error: "A sua sessão expirou! Por favor dê logout e login de novo."
-      });
-    }
   };
 
   render() {
@@ -83,11 +68,10 @@ class Patients extends Component {
                       ))
                     : null}
                 </ul>
-                {this.state.error ? <p>{this.state.error}</p> : null}
+                {this.state.error && <p>{this.state.error}</p>}
               </div>
             )}
           />
-          <Route path="/" render={() => <p>WHY?</p>} />
         </Switch>
       </div>
     );

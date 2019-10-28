@@ -8,6 +8,7 @@ import {
   Icon,
   Input
 } from "semantic-ui-react";
+import { sendAuthenticatedRequest } from "../../../utility/httpHelper";
 import classes from "./Register.module.css";
 
 const Register = props => {
@@ -26,36 +27,20 @@ const Register = props => {
     const timer = setTimeout(() => {
       if (restrictionQuery === searchRef.current.inputRef.current.value) {
         if (restrictionQuery !== "") {
-          fetch(
+          sendAuthenticatedRequest(
             "http://localhost:8080/foods/search/" + restrictionQuery + "/",
-            {
-              method: "get",
-              headers: new Headers({
-                Authorization: "Port " + localStorage.getItem("stored_token")
-              })
-            }
-          ).then(res => {
-            console.log(res);
-            res.json().then(info => {
-              if (res.status === 400) {
-                setMessage("Houve um erro no cadastro!");
-                console.log(info);
-              } else if (res.status === 200) {
-                setQueryResults(info);
-                if (info.next) {
-                  setHasNext(true);
-                } else {
-                  setHasNext(false);
-                }
-                setHasPrevious(false);
-                console.log(info);
-              } else if (res.status === 401) {
-                setMessage(
-                  "A sua sessão expirou! Por favor dê logout e login de novo."
-                );
+            "get",
+            message => setMessage(message),
+            info => {
+              setQueryResults(info);
+              if (info.next) {
+                setHasNext(true);
+              } else {
+                setHasNext(false);
               }
-            });
-          });
+              setHasPrevious(false);
+            }
+          );
         } else {
           setQueryResults(null);
         }
@@ -201,7 +186,7 @@ const Register = props => {
   };
 
   const removeRestriction = food => {
-    setRestrictions([...restrictions].filter(restrFood => restrFood != food));
+    setRestrictions([...restrictions].filter(restrFood => restrFood !== food));
   };
 
   return (
