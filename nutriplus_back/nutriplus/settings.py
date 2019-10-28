@@ -68,7 +68,7 @@ CORS_ORIGIN_ALLOW_ALL = True
 
 
 
-ALLOWED_HOSTS = ['appnutriplus.herokuapp.com', 'localhost:8080']
+ALLOWED_HOSTS = ['appnutriplus.herokuapp.com', 'localhost']
 
 TEMPLATES = [
     {
