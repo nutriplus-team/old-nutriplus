@@ -1,59 +1,119 @@
-import React, { Component } from "react";
-import { Button, Form, Grid, Header, Segment, Icon } from "semantic-ui-react";
+import React, { useState, useRef, useEffect } from "react";
+import {
+  Button,
+  Form,
+  Grid,
+  Header,
+  Segment,
+  Icon,
+  Input
+} from "semantic-ui-react";
 import classes from "./Register.module.css";
 
-class Register extends Component {
-  state = {
-    name: "",
-    dob: "",
-    restrictions: [],
-    restrictionQuery: "",
-    queryResults: null,
-    message: "",
-    hasNext: false,
-    hasPrevious: false
+const Register = props => {
+  const [name, setName] = useState("");
+  const [dob, setDob] = useState("");
+  const [restrictions, setRestrictions] = useState([]);
+  const [restrictionQuery, setRestrictionQuery] = useState("");
+  const [queryResults, setQueryResults] = useState(null);
+  const [message, setMessage] = useState("");
+  const [hasNext, setHasNext] = useState(false);
+  const [hasPrevious, setHasPrevious] = useState(false);
+
+  const searchRef = useRef();
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (restrictionQuery === searchRef.current.inputRef.current.value) {
+        if (restrictionQuery !== "") {
+          fetch(
+            "http://localhost:8080/foods/search/" + restrictionQuery + "/",
+            {
+              method: "get",
+              headers: new Headers({
+                Authorization: "Port " + localStorage.getItem("stored_token")
+              })
+            }
+          ).then(res => {
+            console.log(res);
+            res.json().then(info => {
+              if (res.status === 400) {
+                setMessage("Houve um erro no cadastro!");
+                console.log(info);
+              } else if (res.status === 200) {
+                setQueryResults(info);
+                if (info.next) {
+                  setHasNext(true);
+                } else {
+                  setHasNext(false);
+                }
+                setHasPrevious(false);
+                console.log(info);
+              } else if (res.status === 401) {
+                setMessage(
+                  "A sua sessão expirou! Por favor dê logout e login de novo."
+                );
+              }
+            });
+          });
+        } else {
+          setQueryResults(null);
+        }
+      }
+    }, 500);
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [restrictionQuery, searchRef]);
+
+  const clearFields = () => {
+    setName("");
+    setDob("");
+    setRestrictionQuery("");
+    setQueryResults(null);
+    setRestrictions([]);
   };
 
-  register = async () => {
-    const day = +this.state.dob.slice(0, 2);
-    const month = +this.state.dob.slice(3, 5);
-    const year = +this.state.dob.slice(6);
+  const register = async () => {
+    const day = +dob.slice(0, 2);
+    const month = +dob.slice(3, 5);
+    const year = +dob.slice(6);
     if (day === 0 || month === 0 || month > 12) {
-      this.setState({ message: "Data inválida" });
+      setMessage("Data inválida");
       return;
     } else if (
       (month < 8 && month % 2 === 1) ||
       (month >= 8 && month % 2 === 0)
     ) {
       if (day > 31) {
-        this.setState({ message: "Data inválida" });
+        setMessage("Data inválida");
         return;
       }
     } else if (month === 2) {
       if ((year % 4 === 0 && year % 100 !== 0) || year % 400 === 0) {
         if (day > 29) {
-          this.setState({ message: "Data inválida" });
+          setMessage("Data inválida");
           return;
         }
       } else {
         if (day > 28) {
-          this.setState({ message: "Data inválida" });
+          setMessage("Data inválida");
           return;
         }
       }
     } else if (day > 30) {
-      this.setState({ message: "Data inválida" });
+      setMessage("Data inválida");
       return;
     }
-    if (this.state.name.length === 0) {
-      this.setState({ message: "Não há nome!" });
+    if (name.length === 0) {
+      setMessage("Não há nome!");
       return;
     }
     console.log(
       JSON.stringify({
-        patient: this.state.name,
-        date_of_birth: this.state.dob,
-        food_restrictions: this.state.restrictions.reduce(
+        patient: name,
+        date_of_birth: dob,
+        food_restrictions: restrictions.reduce(
           (total, actual, index, arr) =>
             total + actual.id + (index === arr.length - 1 ? "" : "&"),
           ""
@@ -63,9 +123,9 @@ class Register extends Component {
     const res = await fetch("http://localhost:8080/patients/add-new/", {
       method: "post",
       body: JSON.stringify({
-        patient: this.state.name,
-        date_of_birth: this.state.dob,
-        food_restrictions: this.state.restrictions.reduce(
+        patient: name,
+        date_of_birth: dob,
+        food_restrictions: restrictions.reduce(
           (total, actual, index, arr) =>
             total + actual.id + (index === arr.length - 1 ? "" : "&"),
           ""
@@ -79,23 +139,14 @@ class Register extends Component {
     console.log(res);
     const info = await res.json();
     if (res.status === 400) {
-      this.setState({ message: "Houve um erro no cadastro." });
+      setMessage("Houve um erro no cadastro!");
       console.log(info);
     } else if (res.status === 200) {
-      this.setState({
-        message: "Cadastro realizado com sucesso!",
-        name: "",
-        dob: "",
-        restrictionQuery: "",
-        restrictions: [],
-        likedFoods: "",
-        queryResults: null
-      });
+      setMessage("Cadastro realizado com sucesso!");
+      clearFields();
       console.log(info);
     } else if (res.status === 401) {
-      this.setState({
-        message: "A sua sessão expirou! Por favor dê logout e login de novo."
-      });
+      setMessage("A sua sessão expirou! Por favor dê logout e login de novo.");
       //   const res2 = await fetch("http://localhost:8080/user/token/refresh/", {
       //     method: "post",
       //     body: JSON.stringify({
@@ -113,8 +164,8 @@ class Register extends Component {
   };
 
   // use as handleChangePage("next") or handleChangePage("previous")
-  handleChangePage = async str => {
-    const res = await fetch(this.state.queryResults[str], {
+  const handleChangePage = async str => {
+    const res = await fetch(queryResults[str], {
       method: "get",
       headers: new Headers({
         Authorization: "Port " + localStorage.getItem("stored_token")
@@ -123,197 +174,158 @@ class Register extends Component {
     console.log(res);
     const info = await res.json();
     if (res.status === 400) {
-      this.setState({ message: "Houve um erro no cadastro." });
+      setMessage("Houve um erro no cadastro!");
       console.log(info);
     } else if (res.status === 200) {
-      this.setState({
-        queryResults: info
-      });
+      setQueryResults(info);
       if (info.previous) {
-        this.setState({ hasPrevious: true });
+        setHasPrevious(true);
       } else {
-        this.setState({ hasPrevious: false });
+        setHasPrevious(false);
       }
       if (info.next) {
-        this.setState({ hasNext: true });
+        setHasNext(true);
       } else {
-        this.setState({ hasNext: false });
+        setHasNext(false);
       }
       console.log(info);
     } else if (res.status === 401) {
-      this.setState({
-        message: "A sua sessão expirou! Por favor dê logout e login de novo."
-      });
+      setMessage("A sua sessão expirou! Por favor dê logout e login de novo.");
     }
   };
 
-  handlefoodClick = food => {
-    this.setState(prevState => ({
-      restrictions: [...prevState.restrictions, food],
-      restrictionQuery: "",
-      queryResults: null
-    }));
+  const handlefoodClick = food => {
+    setRestrictions([...restrictions, food]);
+    setRestrictionQuery("");
+    setQueryResults(null);
   };
 
-  render() {
-    return (
-      <Grid
-        textAlign="center"
-        style={{ height: "10vh" }}
-        verticalAlign="middle"
-      >
-        <Grid.Column style={{ maxWidth: 450 }}>
-          <Header as="h2" color="teal" textAlign="center">
-            Insira as informações do paciente abaixo
-          </Header>
-          <Form size="large">
-            <Segment stacked>
-              <Form.Input
-                icon="id card outline"
-                iconPosition="left"
-                placeholder="Nome do paciente"
-                onChange={event => {
-                  this.setState({ name: event.target.value, message: "" });
-                }}
-                value={this.state.name}
-              />
-              <Form.Input
-                icon="calendar"
-                iconPosition="left"
-                placeholder="DD/MM/YYYY"
-                value={this.state.dob}
-                // TODO: make this update function foolproof
-                onChange={event => {
-                  const inputDob = event.target.value;
-                  const actualIndex = this.state.dob.length;
-                  if (inputDob.length > actualIndex) {
-                    const lastChar = inputDob[actualIndex];
-                    if (lastChar < "0" || lastChar > "9") {
-                      return;
-                    }
-                    if (actualIndex === 2 || actualIndex === 5) {
-                      // First month digit or year digit was just filled
-                      this.setState({
-                        dob: inputDob.slice(0, -1) + "/" + inputDob.slice(-1)
-                      });
-                      return;
-                    }
-                    if (actualIndex === 10) {
-                      // Date should be finished
-                      return;
-                    }
+  const removeRestriction = food => {
+    setRestrictions([...restrictions].filter(restrFood => restrFood != food));
+  };
+
+  return (
+    <Grid textAlign="center" style={{ height: "10vh" }} verticalAlign="middle">
+      <Grid.Column style={{ maxWidth: 450 }}>
+        <Header as="h2" color="teal" textAlign="center">
+          Insira as informações do paciente abaixo
+        </Header>
+        <Form size="large">
+          <Segment stacked>
+            <Form.Input
+              icon="id card outline"
+              iconPosition="left"
+              placeholder="Nome do paciente"
+              onChange={event => {
+                setName(event.target.value);
+                setMessage("");
+              }}
+              value={name}
+            />
+            <Form.Input
+              icon="calendar"
+              iconPosition="left"
+              placeholder="DD/MM/YYYY"
+              value={dob}
+              // TODO: make this update function foolproof
+              onChange={event => {
+                const inputDob = event.target.value;
+                const actualIndex = dob.length;
+                if (inputDob.length > actualIndex) {
+                  const lastChar = inputDob[actualIndex];
+                  if (lastChar < "0" || lastChar > "9") {
+                    return;
                   }
-                  // If I didn't return up until now, I should just set state to the input
-                  this.setState({ dob: inputDob, message: "" });
-                }}
-              />
-              <Form.Input
+                  if (actualIndex === 2 || actualIndex === 5) {
+                    // First month digit or year digit was just filled
+                    setDob(inputDob.slice(0, -1) + "/" + inputDob.slice(-1));
+                    return;
+                  }
+                  if (actualIndex === 10) {
+                    // Date should be finished
+                    return;
+                  }
+                }
+                // If I didn't return up until now, I should just set state to the input
+                setDob(inputDob);
+                setMessage("");
+              }}
+            />
+            <Form.Field>
+              <Input
+                ref={searchRef}
                 icon="search"
                 iconPosition="left"
                 placeholder="Restrições alimentares (opcional)"
                 onChange={async event => {
-                  this.setState({
-                    restrictionQuery: event.target.value,
-                    message: ""
-                  });
-                  if (event.target.value !== "") {
-                    const res = await fetch(
-                      "http://localhost:8080/foods/search/" +
-                        event.target.value +
-                        "/",
-                      {
-                        method: "get",
-                        headers: new Headers({
-                          Authorization:
-                            "Port " + localStorage.getItem("stored_token")
-                        })
-                      }
-                    );
-                    console.log(res);
-                    const info = await res.json();
-                    if (res.status === 400) {
-                      this.setState({ message: "Houve um erro no cadastro." });
-                      console.log(info);
-                    } else if (res.status === 200) {
-                      this.setState({
-                        queryResults: info
-                      });
-                      if (info.next) {
-                        this.setState({ hasNext: true });
-                      } else {
-                        this.setState({ hasNext: false });
-                      }
-                      this.setState({ hasPrevious: false });
-                      console.log(info);
-                    } else if (res.status === 401) {
-                      this.setState({
-                        message:
-                          "A sua sessão expirou! Por favor dê logout e login de novo."
-                      });
-                    }
-                  } else {
-                    this.setState({ queryResults: null });
-                  }
+                  setRestrictionQuery(event.target.value);
+                  setMessage("");
                 }}
-                value={this.state.restrictionQuery}
+                value={restrictionQuery}
               />
-              {this.state.restrictions.length === 0 ? null : (
-                <ul>
-                  {this.state.restrictions.map(food => (
-                    <li key={food.id}>{food.food_name}</li>
+            </Form.Field>
+            {restrictions.length === 0 ? null : (
+              <ul>
+                {restrictions.map(food => (
+                  <li
+                    className={classes.Food}
+                    key={food.id}
+                    onClick={() => removeRestriction(food)}
+                  >
+                    {food.food_name}
+                  </li>
+                ))}
+              </ul>
+            )}
+            {queryResults ? (
+              <React.Fragment>
+                <hr />
+                {queryResults.results
+                  .filter(
+                    food =>
+                      !restrictions.some(
+                        state_food => state_food.food_name === food.food_name
+                      )
+                  )
+                  .map(obj => (
+                    <p
+                      key={obj.id}
+                      className={classes.Food}
+                      onClick={() => handlefoodClick(obj)}
+                    >
+                      {obj.food_name}
+                    </p>
                   ))}
-                </ul>
-              )}
-              {this.state.queryResults ? (
-                <React.Fragment>
-                  <hr />
-                  {this.state.queryResults.results
-                    .filter(
-                      food =>
-                        !this.state.restrictions.some(
-                          state_food => state_food.food_name == food.food_name
-                        )
-                    )
-                    .map(obj => (
-                      <p
-                        key={obj.id}
-                        className={classes.Food}
-                        onClick={() => this.handlefoodClick(obj)}
-                      >
-                        {obj.food_name}
-                      </p>
-                    ))}
-                  <Button
-                    onClick={() => this.handleChangePage("previous")}
-                    icon
-                    floated="left"
-                    size="mini"
-                    disabled={!this.state.hasPrevious}
-                  >
-                    <Icon name="angle double left" />
-                  </Button>
+                <Button
+                  onClick={() => handleChangePage("previous")}
+                  icon
+                  floated="left"
+                  size="mini"
+                  disabled={!hasPrevious}
+                >
+                  <Icon name="angle double left" />
+                </Button>
 
-                  <Button
-                    onClick={() => this.handleChangePage("next")}
-                    disabled={!this.state.hasNext}
-                    icon
-                    floated="right"
-                    size="mini"
-                  >
-                    <Icon name="angle double right" />
-                  </Button>
-                </React.Fragment>
-              ) : null}
-              <Button color="teal" fluid size="large" onClick={this.register}>
-                Registrar paciente
-              </Button>
-              <p>{this.state.message}</p>
-            </Segment>
-          </Form>
-        </Grid.Column>
-      </Grid>
-    );
-  }
-}
+                <Button
+                  onClick={() => handleChangePage("next")}
+                  disabled={!hasNext}
+                  icon
+                  floated="right"
+                  size="mini"
+                >
+                  <Icon name="angle double right" />
+                </Button>
+              </React.Fragment>
+            ) : null}
+            <Button color="teal" fluid size="large" onClick={register}>
+              Registrar paciente
+            </Button>
+            <p>{message}</p>
+          </Segment>
+        </Form>
+      </Grid.Column>
+    </Grid>
+  );
+};
 
 export default Register;
