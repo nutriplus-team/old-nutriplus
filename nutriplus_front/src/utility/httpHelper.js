@@ -41,8 +41,18 @@ export const sendAuthenticatedRequest = async (
       })
     });
     const info2 = await res2.json();
-    localStorage.setItem("stored_token", info2.access);
-    setMessage("Sessão restaurada!");
-    sendAuthenticatedRequest(url, method, setMessage, afterRequest, body);
+    if (res2.status === 400) {
+      setMessage(
+        "Houve algum problema ao tentar carregar a ficha do paciente!"
+      );
+    } else if (res2.status === 200) {
+      localStorage.setItem("stored_token", info2.access);
+      setMessage("Sessão restaurada!");
+      sendAuthenticatedRequest(url, method, setMessage, afterRequest, body);
+    } else if (res2.status === 401) {
+      setMessage(
+        "A sua sessão expirou! Por favor, deslogue e logue de novo, por questão de segurança."
+      );
+    }
   }
 };
