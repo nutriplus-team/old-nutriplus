@@ -206,9 +206,21 @@ class GetSingleRecord(generics.GenericAPIView):
 
         try:
             record = PatientRecord.objects.get(pk=kwargs['id'])
-        except PatientRecordSerializer.DoesNotExist:
+        except PatientRecord.DoesNotExist:
             return Response({'Info': 'Patient does not exist'}, status=status.HTTP_400_BAD_REQUEST)
 
         serializer = PatientRecordSerializer(record)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+
+class RemovePatient(generics.DestroyAPIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request, *args, **kwargs):
+        try:
+            patient = Patients.objects.get(pk=kwargs['id'])
+        except Patients.DoesNotExist:
+            return Response({'Info': 'Not Found'}, status=status.HTTP_400_BAD_REQUEST)
+
+        patient.delete()
+        return Response({'Info': 'Successfully deleted'}, status=status.HTTP_200_OK)
