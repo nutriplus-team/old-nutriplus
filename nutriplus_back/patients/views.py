@@ -150,7 +150,7 @@ class EditPatientRecord(generics.UpdateAPIView):
 
             new_serializer = PatientRecordSerializer(record)
 
-            return Response({'Info': 'Successfully edied', 'Record': new_serializer.data}, status=status.HTTP_200_OK)
+            return Response({'Info': 'Successfully edited', 'Record': new_serializer.data}, status=status.HTTP_200_OK)
 
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

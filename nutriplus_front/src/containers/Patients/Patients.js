@@ -49,13 +49,23 @@ class Patients extends Component {
             render={props => <PatientRecordCreator {...props} />}
           />
           <Route
+            exact
             path="/pacientes/:id/ficha/:ficha_id"
             render={props => <PatientRecord {...props} />}
+          />
+          <Route
+            path="/pacientes/:id/ficha/:ficha_id/edit"
+            render={props => <PatientRecordCreator {...props} />}
           />
           <Route
             exact
             path="/pacientes/:id"
             render={props => <Patient {...props} />}
+          />
+          <Route
+            exact
+            path="/pacientes/:id/edit"
+            render={props => <Register {...props} />}
           />
           <Route
             path="/pacientes"

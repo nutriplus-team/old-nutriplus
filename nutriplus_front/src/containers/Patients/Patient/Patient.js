@@ -49,6 +49,16 @@ class Patient extends Component {
         {this.state.info ? (
           <div>
             <h3>{this.state.info.name}</h3>
+            <Button
+              style={{ margin: "10px" }}
+              color="teal"
+              size="small"
+              onClick={() =>
+                this.props.history.push("/pacientes/" + params["id"] + "/edit")
+              }
+            >
+              Editar dados do paciente
+            </Button>
             <p>Data de nascimento: {this.state.info.date_of_birth}</p>
             <p>
               Restrições alimentares:{" "}
@@ -65,6 +75,7 @@ class Patient extends Component {
           </div>
         ) : null}
         <Button
+          style={{ margin: "10px" }}
           color="teal"
           size="small"
           onClick={() =>

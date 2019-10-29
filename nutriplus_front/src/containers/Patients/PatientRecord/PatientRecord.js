@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { Button } from "semantic-ui-react";
 import { sendAuthenticatedRequest } from "../../../utility/httpHelper";
 
 class PatientRecord extends Component {
@@ -53,6 +54,7 @@ class PatientRecord extends Component {
   };
 
   render() {
+    const params = this.props.match.params;
     return (
       <div>
         {this.state.error ? <p>{this.state.error}</p> : null}
@@ -63,6 +65,22 @@ class PatientRecord extends Component {
             ))}
           </div>
         ) : null}
+        <Button
+          style={{ margin: "10px" }}
+          color="teal"
+          size="small"
+          onClick={() =>
+            this.props.history.push(
+              "/pacientes/" +
+                params["id"] +
+                "/ficha/" +
+                params["ficha_id"] +
+                "/edit"
+            )
+          }
+        >
+          Editar ficha do paciente
+        </Button>
       </div>
     );
   }

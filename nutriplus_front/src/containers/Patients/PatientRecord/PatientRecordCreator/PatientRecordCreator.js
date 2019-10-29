@@ -10,7 +10,14 @@ import {
 } from "semantic-ui-react";
 
 class PatientRecordCreator extends Component {
-  state = { patient: null, weight: "", height: "", obs: "", message: null };
+  state = {
+    patient: null,
+    weight: "",
+    height: "",
+    obs: "",
+    message: null,
+    editing: false
+  };
 
   componentDidMount = async () => {
     const params = this.props.match.params;
@@ -23,6 +30,23 @@ class PatientRecordCreator extends Component {
         }),
       info => this.setState({ patient: info, message: null })
     );
+    if (params["ficha_id"]) {
+      sendAuthenticatedRequest(
+        "http://localhost:8080/patients/get-single-record/" +
+          params["ficha_id"] +
+          "/",
+        "get",
+        message => this.setState({ message: message }),
+        info => {
+          this.setState({
+            weight: info.corporal_mass,
+            height: info.height,
+            obs: info.observations
+          });
+        }
+      );
+      this.setState({ editing: true });
+    }
   };
 
   sendForm = async () => {
@@ -34,27 +58,53 @@ class PatientRecordCreator extends Component {
       +this.state.weight < 1000 &&
       +this.state.height < 3
     ) {
-      sendAuthenticatedRequest(
-        "http://localhost:8080/patients/add-record/" + params["id"] + "/",
-        "post",
-        message =>
-          this.setState({
-            message: message
-          }),
-        () =>
-          this.setState({
-            message: "Ficha salva com sucesso!",
-            weight: "",
-            height: "",
-            obs: ""
-          }),
-        JSON.stringify({
-          corporal_mass: (+this.state.weight).toFixed(2),
-          height: (+this.state.height).toFixed(2),
-          BMI: BMI.toFixed(2),
-          observations: this.state.obs
-        })
-      );
+      if (!this.state.editing) {
+        sendAuthenticatedRequest(
+          "http://localhost:8080/patients/add-record/" + params["id"] + "/",
+          "post",
+          message =>
+            this.setState({
+              message: message
+            }),
+          () =>
+            this.setState({
+              message: "Ficha salva com sucesso!",
+              weight: "",
+              height: "",
+              obs: ""
+            }),
+          JSON.stringify({
+            corporal_mass: (+this.state.weight).toFixed(2),
+            height: (+this.state.height).toFixed(2),
+            BMI: BMI.toFixed(2),
+            observations: this.state.obs
+          })
+        );
+      } else {
+        sendAuthenticatedRequest(
+          "http://localhost:8080/patients/edit-record/" +
+            params["ficha_id"] +
+            "/",
+          "post",
+          message =>
+            this.setState({
+              message: message
+            }),
+          () =>
+            this.setState({
+              message: "Ficha editada com sucesso!",
+              weight: "",
+              height: "",
+              obs: ""
+            }),
+          JSON.stringify({
+            corporal_mass: (+this.state.weight).toFixed(2),
+            height: (+this.state.height).toFixed(2),
+            BMI: BMI.toFixed(2),
+            observations: this.state.obs
+          })
+        );
+      }
     } else {
       this.setState({
         message: "Valores de altura ou peso inválidos!"
@@ -110,7 +160,7 @@ class PatientRecordCreator extends Component {
                   value={this.state.obs}
                 />
                 <Button color="teal" fluid size="large" onClick={this.sendForm}>
-                  Adicionar ficha
+                  {this.state.editing ? "Editar ficha" : "Adicionar ficha"}
                 </Button>
                 {this.state.message && <p>{this.state.message}</p>}
               </Segment>

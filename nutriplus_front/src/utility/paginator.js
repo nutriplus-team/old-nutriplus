@@ -29,7 +29,7 @@ const paginator = props => {
   return (
     <React.Fragment>
       {results}
-      {(results.length !== 0 || results.length === null) && (
+      {(results.length > 1 || results.length === null) && (
         <React.Fragment>
           <Button
             onClick={() => handleChangePage("previous")}

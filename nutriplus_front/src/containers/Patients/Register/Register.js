@@ -13,8 +13,26 @@ const Register = props => {
   const [queryResults, setQueryResults] = useState(null);
   const [hasNext, setHasNext] = useState(false);
   const [hasPrevious, setHasPrevious] = useState(false);
+  const [editing, setEditing] = useState(false);
 
   const searchRef = useRef();
+
+  useEffect(() => {
+    const params = props.match.params;
+    if (params["id"]) {
+      sendAuthenticatedRequest(
+        "http://localhost:8080/patients/get-info/" + params["id"] + "/",
+        "get",
+        message => setMessage(message),
+        info => {
+          setName(info.name);
+          setDob(info.date_of_birth);
+          setRestrictions(info.food_restrictions);
+        }
+      );
+      setEditing(true);
+    }
+  }, []);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -88,24 +106,45 @@ const Register = props => {
       setMessage("Não há nome!");
       return;
     }
-    sendAuthenticatedRequest(
-      "http://localhost:8080/patients/add-new/",
-      "post",
-      message => setMessage(message),
-      () => {
-        setMessage("Cadastro realizado com sucesso!");
-        clearFields();
-      },
-      JSON.stringify({
-        patient: name,
-        date_of_birth: dob,
-        food_restrictions: restrictions.reduce(
-          (total, actual, index, arr) =>
-            total + actual.id + (index === arr.length - 1 ? "" : "&"),
-          ""
-        )
-      })
-    );
+    if (!editing) {
+      sendAuthenticatedRequest(
+        "http://localhost:8080/patients/add-new/",
+        "post",
+        message => setMessage(message),
+        () => {
+          setMessage("Cadastro realizado com sucesso!");
+          clearFields();
+        },
+        JSON.stringify({
+          patient: name,
+          date_of_birth: dob,
+          food_restrictions: restrictions.reduce(
+            (total, actual, index, arr) =>
+              total + actual.id + (index === arr.length - 1 ? "" : "&"),
+            ""
+          )
+        })
+      );
+    } else {
+      sendAuthenticatedRequest(
+        "http://localhost:8080/patients/edit/" + props.match.params["id"] + "/",
+        "post",
+        message => setMessage(message),
+        () => {
+          setMessage("Paciente editado com sucesso!");
+          clearFields();
+        },
+        JSON.stringify({
+          patient: name,
+          date_of_birth: dob,
+          food_restrictions: restrictions.reduce(
+            (total, actual, index, arr) =>
+              total + actual.id + (index === arr.length - 1 ? "" : "&"),
+            ""
+          )
+        })
+      );
+    }
   };
 
   const handlefoodClick = food => {
@@ -221,7 +260,7 @@ const Register = props => {
               </React.Fragment>
             )}
             <Button color="teal" fluid size="large" onClick={register}>
-              Registrar paciente
+              {editing ? "Editar paciente" : "Registrar paciente"}
             </Button>
             <p>{message}</p>
           </Segment>
