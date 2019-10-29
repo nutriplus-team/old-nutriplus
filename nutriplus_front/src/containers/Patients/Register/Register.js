@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { Redirect } from "react-router-dom";
 import { Button, Form, Grid, Header, Segment, Input } from "semantic-ui-react";
 import { sendAuthenticatedRequest } from "../../../utility/httpHelper";
 import Paginator from "../../../utility/paginator";
@@ -14,6 +15,7 @@ const Register = props => {
   const [hasNext, setHasNext] = useState(false);
   const [hasPrevious, setHasPrevious] = useState(false);
   const [editing, setEditing] = useState(false);
+  const [redirectUrl, setRedirectUrl] = useState(null);
 
   const searchRef = useRef();
 
@@ -67,6 +69,7 @@ const Register = props => {
   };
 
   const register = async () => {
+    const params = props.match.params;
     const fullRegex = /^\d{2}\/\d{2}\/\d{4}$/;
     if (!fullRegex.test(dob)) {
       setMessage("A data não está no formato DD-MM-YYYY!");
@@ -114,6 +117,7 @@ const Register = props => {
         () => {
           setMessage("Cadastro realizado com sucesso!");
           clearFields();
+          setRedirectUrl("/pacientes");
         },
         JSON.stringify({
           patient: name,
@@ -133,6 +137,7 @@ const Register = props => {
         () => {
           setMessage("Paciente editado com sucesso!");
           clearFields();
+          setRedirectUrl("/pacientes/" + params["id"]);
         },
         JSON.stringify({
           patient: name,
@@ -266,6 +271,7 @@ const Register = props => {
           </Segment>
         </Form>
       </Grid.Column>
+      {redirectUrl && <Redirect to={redirectUrl + "?refresh=true"} />}
     </Grid>
   );
 };

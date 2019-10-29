@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { Redirect } from "react-router-dom";
 import { sendAuthenticatedRequest } from "../../../../utility/httpHelper";
 import {
   Button,
@@ -16,7 +17,8 @@ class PatientRecordCreator extends Component {
     height: "",
     obs: "",
     message: null,
-    editing: false
+    editing: false,
+    redirectUrl: null
   };
 
   componentDidMount = async () => {
@@ -71,7 +73,8 @@ class PatientRecordCreator extends Component {
               message: "Ficha salva com sucesso!",
               weight: "",
               height: "",
-              obs: ""
+              obs: "",
+              redirectUrl: "/pacientes/" + params["id"]
             }),
           JSON.stringify({
             corporal_mass: (+this.state.weight).toFixed(2),
@@ -95,7 +98,9 @@ class PatientRecordCreator extends Component {
               message: "Ficha editada com sucesso!",
               weight: "",
               height: "",
-              obs: ""
+              obs: "",
+              redirectUrl:
+                "/pacientes/" + params["id"] + "/ficha/" + params["ficha_id"]
             }),
           JSON.stringify({
             corporal_mass: (+this.state.weight).toFixed(2),
@@ -167,6 +172,9 @@ class PatientRecordCreator extends Component {
             </Form>
           </Grid.Column>
         </Grid>
+        {this.state.redirectUrl && (
+          <Redirect to={this.state.redirectUrl + "?refresh=true"} />
+        )}
       </div>
     );
   }

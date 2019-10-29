@@ -81,6 +81,13 @@ class PatientRecord extends Component {
         >
           Editar ficha do paciente
         </Button>
+        <Button
+          color="teal"
+          size="medium"
+          onClick={() => this.props.history.push("/pacientes/" + params["id"])}
+        >
+          Voltar à página do paciente
+        </Button>
       </div>
     );
   }

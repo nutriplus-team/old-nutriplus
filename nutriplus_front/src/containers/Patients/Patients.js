@@ -4,7 +4,7 @@ import { Button } from "semantic-ui-react";
 import Register from "./Register/Register";
 import PatientRecordCreator from "./PatientRecord/PatientRecordCreator/PatientRecordCreator";
 import PatientRecord from "./PatientRecord/PatientRecord";
-import { Route, Switch, NavLink } from "react-router-dom";
+import { Route, Switch, NavLink, Redirect } from "react-router-dom";
 import { sendAuthenticatedRequest } from "../../utility/httpHelper";
 import Paginator from "../../utility/paginator";
 import classes from "./Patients.module.css";
@@ -14,7 +14,32 @@ class Patients extends Component {
     patientsQueryInfo: null,
     error: null,
     hasNext: false,
-    hasPrevious: false
+    hasPrevious: false,
+    redirect: false
+  };
+
+  componentDidUpdate = async () => {
+    if (this.props.location.search.length > 0) {
+      const query = new URLSearchParams(this.props.location.search);
+      if (query.get("refresh")) {
+        sendAuthenticatedRequest(
+          "http://localhost:8080/patients/get-all-patients/",
+          "get",
+          message =>
+            this.setState({
+              error: message
+            }),
+          info =>
+            this.setState({
+              patientsQueryInfo: info,
+              error: null,
+              hasPrevious: false,
+              hasNext: info.next !== null,
+              redirect: true
+            })
+        );
+      }
+    }
   };
 
   componentDidMount = async () => {
@@ -109,6 +134,7 @@ class Patients extends Component {
                   />
                 )}
                 {this.state.error && <p>{this.state.error}</p>}
+                {this.state.redirect && <Redirect to="/pacientes" />}
               </div>
             )}
           />
