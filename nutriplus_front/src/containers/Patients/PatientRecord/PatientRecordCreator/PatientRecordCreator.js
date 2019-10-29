@@ -28,27 +28,38 @@ class PatientRecordCreator extends Component {
   sendForm = async () => {
     const params = this.props.match.params;
     const BMI = +this.state.weight / (+this.state.height * +this.state.height);
-    sendAuthenticatedRequest(
-      "http://localhost:8080/patients/add-record/" + params["id"] + "/",
-      "post",
-      message =>
-        this.setState({
-          message: message
-        }),
-      () =>
-        this.setState({
-          message: "Ficha salva com sucesso!",
-          weight: "",
-          height: "",
-          obs: ""
-        }),
-      JSON.stringify({
-        corporal_mass: (+this.state.weight).toFixed(2),
-        height: (+this.state.height).toFixed(2),
-        BMI: BMI.toFixed(2),
-        observations: this.state.obs
-      })
-    );
+    if (
+      +this.state.weight > 0.1 &&
+      +this.state.height > 0.1 &&
+      +this.state.weight < 1000 &&
+      +this.state.height < 3
+    ) {
+      sendAuthenticatedRequest(
+        "http://localhost:8080/patients/add-record/" + params["id"] + "/",
+        "post",
+        message =>
+          this.setState({
+            message: message
+          }),
+        () =>
+          this.setState({
+            message: "Ficha salva com sucesso!",
+            weight: "",
+            height: "",
+            obs: ""
+          }),
+        JSON.stringify({
+          corporal_mass: (+this.state.weight).toFixed(2),
+          height: (+this.state.height).toFixed(2),
+          BMI: BMI.toFixed(2),
+          observations: this.state.obs
+        })
+      );
+    } else {
+      this.setState({
+        message: "Valores de altura ou peso inválidos!"
+      });
+    }
   };
 
   render() {

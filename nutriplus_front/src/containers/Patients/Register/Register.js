@@ -1,14 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
-import {
-  Button,
-  Form,
-  Grid,
-  Header,
-  Segment,
-  Icon,
-  Input
-} from "semantic-ui-react";
+import { Button, Form, Grid, Header, Segment, Input } from "semantic-ui-react";
 import { sendAuthenticatedRequest } from "../../../utility/httpHelper";
+import Paginator from "../../../utility/paginator";
 import classes from "./Register.module.css";
 
 const Register = props => {
@@ -16,8 +9,8 @@ const Register = props => {
   const [dob, setDob] = useState("");
   const [restrictions, setRestrictions] = useState([]);
   const [restrictionQuery, setRestrictionQuery] = useState("");
-  const [queryResults, setQueryResults] = useState(null);
   const [message, setMessage] = useState("");
+  const [queryResults, setQueryResults] = useState(null);
   const [hasNext, setHasNext] = useState(false);
   const [hasPrevious, setHasPrevious] = useState(false);
 
@@ -33,11 +26,7 @@ const Register = props => {
             message => setMessage(message),
             info => {
               setQueryResults(info);
-              if (info.next) {
-                setHasNext(true);
-              } else {
-                setHasNext(false);
-              }
+              setHasNext(info.next !== null);
               setHasPrevious(false);
             }
           );
@@ -94,7 +83,14 @@ const Register = props => {
       setMessage("Não há nome!");
       return;
     }
-    console.log(
+    sendAuthenticatedRequest(
+      "http://localhost:8080/patients/add-new/",
+      "post",
+      message => setMessage(message),
+      () => {
+        setMessage("Cadastro realizado com sucesso!");
+        clearFields();
+      },
       JSON.stringify({
         patient: name,
         date_of_birth: dob,
@@ -105,78 +101,19 @@ const Register = props => {
         )
       })
     );
-    const res = await fetch("http://localhost:8080/patients/add-new/", {
-      method: "post",
-      body: JSON.stringify({
-        patient: name,
-        date_of_birth: dob,
-        food_restrictions: restrictions.reduce(
-          (total, actual, index, arr) =>
-            total + actual.id + (index === arr.length - 1 ? "" : "&"),
-          ""
-        )
-      }),
-      headers: new Headers({
-        Authorization: "Port " + localStorage.getItem("stored_token"),
-        "Content-Type": "application/json"
-      })
-    });
-    console.log(res);
-    const info = await res.json();
-    if (res.status === 400) {
-      setMessage("Houve um erro no cadastro!");
-      console.log(info);
-    } else if (res.status === 200) {
-      setMessage("Cadastro realizado com sucesso!");
-      clearFields();
-      console.log(info);
-    } else if (res.status === 401) {
-      setMessage("A sua sessão expirou! Por favor dê logout e login de novo.");
-      //   const res2 = await fetch("http://localhost:8080/user/token/refresh/", {
-      //     method: "post",
-      //     body: JSON.stringify({
-      //       refresh: localStorage.getItem("stored_refresh")
-      //     }),
-      //     headers: new Headers({
-      //       "Content-Type": "application/json"
-      //     })
-      //   });
-      //   const info2 = await res2.json();
-      //   console.log(info2);
-      //   localStorage.setItem("stored_token", info2.access);
-      //   this.setState({ message: "Sessão restaurada!" });
-    }
-  };
-
-  // use as handleChangePage("next") or handleChangePage("previous")
-  const handleChangePage = async str => {
-    const res = await fetch(queryResults[str], {
-      method: "get",
-      headers: new Headers({
-        Authorization: "Port " + localStorage.getItem("stored_token")
-      })
-    });
-    console.log(res);
-    const info = await res.json();
-    if (res.status === 400) {
-      setMessage("Houve um erro no cadastro!");
-      console.log(info);
-    } else if (res.status === 200) {
-      setQueryResults(info);
-      if (info.previous) {
-        setHasPrevious(true);
-      } else {
-        setHasPrevious(false);
-      }
-      if (info.next) {
-        setHasNext(true);
-      } else {
-        setHasNext(false);
-      }
-      console.log(info);
-    } else if (res.status === 401) {
-      setMessage("A sua sessão expirou! Por favor dê logout e login de novo.");
-    }
+    //   const res2 = await fetch("http://localhost:8080/user/token/refresh/", {
+    //     method: "post",
+    //     body: JSON.stringify({
+    //       refresh: localStorage.getItem("stored_refresh")
+    //     }),
+    //     headers: new Headers({
+    //       "Content-Type": "application/json"
+    //     })
+    //   });
+    //   const info2 = await res2.json();
+    //   console.log(info2);
+    //   localStorage.setItem("stored_token", info2.access);
+    //   this.setState({ message: "Sessão restaurada!" });
   };
 
   const handlefoodClick = food => {
@@ -262,17 +199,17 @@ const Register = props => {
                 ))}
               </ul>
             )}
-            {queryResults ? (
+            {queryResults && (
               <React.Fragment>
                 <hr />
-                {queryResults.results
-                  .filter(
-                    food =>
-                      !restrictions.some(
-                        state_food => state_food.food_name === food.food_name
-                      )
-                  )
-                  .map(obj => (
+                <Paginator
+                  queryResults={queryResults}
+                  filter={food =>
+                    !restrictions.some(
+                      state_food => state_food.food_name === food.food_name
+                    )
+                  }
+                  listElementMap={obj => (
                     <p
                       key={obj.id}
                       className={classes.Food}
@@ -280,28 +217,17 @@ const Register = props => {
                     >
                       {obj.food_name}
                     </p>
-                  ))}
-                <Button
-                  onClick={() => handleChangePage("previous")}
-                  icon
-                  floated="left"
-                  size="mini"
-                  disabled={!hasPrevious}
-                >
-                  <Icon name="angle double left" />
-                </Button>
-
-                <Button
-                  onClick={() => handleChangePage("next")}
-                  disabled={!hasNext}
-                  icon
-                  floated="right"
-                  size="mini"
-                >
-                  <Icon name="angle double right" />
-                </Button>
+                  )}
+                  setResults={setQueryResults}
+                  setHasNext={setHasNext}
+                  setHasPrevious={setHasPrevious}
+                  setMessage={setMessage}
+                  hasPrevious={hasPrevious}
+                  hasNext={hasNext}
+                  buttonSize="mini"
+                />
               </React.Fragment>
-            ) : null}
+            )}
             <Button color="teal" fluid size="large" onClick={register}>
               Registrar paciente
             </Button>

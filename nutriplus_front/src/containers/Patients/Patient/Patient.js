@@ -1,10 +1,17 @@
 import React, { Component } from "react";
 import { Button } from "semantic-ui-react";
 import { sendAuthenticatedRequest } from "../../../utility/httpHelper";
+import Paginator from "../../../utility/paginator";
 import classes from "./Patient.module.css";
 
 class Patient extends Component {
-  state = { records: null, info: null, error: null };
+  state = {
+    recordQueryInfo: null,
+    info: null,
+    error: null,
+    hasNext: false,
+    hasPrevious: false
+  };
 
   componentDidMount = async () => {
     const params = this.props.match.params;
@@ -20,11 +27,17 @@ class Patient extends Component {
     sendAuthenticatedRequest(
       "http://localhost:8080/patients/get-records/" + params["id"] + "/",
       "get",
-      message =>
+      message => {
         this.setState({
           error: message
-        }),
-      recordInfo => this.setState({ records: recordInfo.results })
+        });
+      },
+      recordInfo =>
+        this.setState({
+          recordQueryInfo: recordInfo,
+          hasPrevious: false,
+          hasNext: recordInfo.next !== null
+        })
     );
   };
 
@@ -62,25 +75,43 @@ class Patient extends Component {
         >
           Criar ficha para o paciente
         </Button>
-        {this.state.records ? (
-          <div>
-            {this.state.records.map(record => (
-              <div
-                key={record.id}
-                onClick={() =>
-                  this.props.history.push(
-                    "/pacientes/" + params["id"] + "/ficha/" + record.id
-                  )
-                }
-              >
-                <p className={classes.record}>
-                  <span>Modificado em: {record.date_modified}</span>
-                  <span>Peso: {record.corporal_mass}</span>
-                  <span>Altura: {record.height}</span>
-                  <span>IMC: {record.BMI}</span>
-                </p>
-              </div>
-            ))}
+        {this.state.recordQueryInfo ? (
+          <div className={classes.records}>
+            <Paginator
+              queryResults={this.state.recordQueryInfo}
+              filter={() => true}
+              listElementMap={record => (
+                <div
+                  key={record.id}
+                  onClick={() =>
+                    this.props.history.push(
+                      "/pacientes/" + params["id"] + "/ficha/" + record.id
+                    )
+                  }
+                  className={classes.record}
+                >
+                  <p>
+                    <span>Modificado em: {record.date_modified}</span>
+                    <span>Peso: {record.corporal_mass}</span>
+                    <span>Altura: {record.height}</span>
+                    <span>IMC: {record.BMI}</span>
+                  </p>
+                </div>
+              )}
+              setResults={recordInfo =>
+                this.setState({ recordQueryInfo: recordInfo })
+              }
+              setHasNext={value => this.setState({ hasNext: value })}
+              setHasPrevious={value => this.setState({ hasPrevious: value })}
+              setMessage={message =>
+                this.setState({
+                  error: message
+                })
+              }
+              hasPrevious={this.state.hasPrevious}
+              hasNext={this.state.hasNext}
+              buttonSize="large"
+            />
           </div>
         ) : (
           <p>Ainda não há uma ficha para esse paciente!</p>

@@ -35,7 +35,6 @@ class AddNewFood(generics.CreateAPIView):
             new_food.measure_type = serializer.validated_data['measure_type']
             new_food.measure_amount = serializer.validated_data['measure_amount']
             new_food.nutrition_facts = new_nutrition_facts
-            new_food.meal_number = serializer.validated_data['meal_number']
             new_food.save()
 
             new_serializer = FoodSerializer(new_food)
@@ -85,7 +84,7 @@ class EditFood(generics.UpdateAPIView):
 
             new_serializer = FoodSerializer(food)
 
-            return Response({'Info': 'Succesfully edited', 'Food': new_serializer.data},
+            return Response({'Info': 'Successfully edited', 'Food': new_serializer.data},
                             status=status.HTTP_200_OK)
 
         else:
@@ -97,7 +96,7 @@ class ListFoods(generics.ListAPIView):
     permission_classes = (IsAuthenticated, )
 
     def get_queryset(self, *args, **kwargs):
-        return Food.objects.all()
+        return Food.objects.all().order_by('food_name')
 
 
 class ListFoodsPagination(generics.ListAPIView):
@@ -124,6 +123,26 @@ class SearchFood(generics.ListAPIView):
 
 class RemoveFood(generics.DestroyAPIView):
     permission_classes = (IsAuthenticated, )
+    
+    def get(self, request, *args, **kwargs):
+        id = kwargs['id']
+        try:
+            food = Food.objects.get(pk=id)
+        except Food.DoesNotExist:
+            return Response({'Info': 'Not Found'}, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = FoodSerializer(food)
+        food.delete()
+        return Response({'Info': 'Successfully deleted', 'Food': serializer.data}, status=status.HTTP_204_NO_CONTENT)
+
+
+class RemoveAllFood(generics.DestroyAPIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self):
+        food = Food.objects.all()
+        food.delete()
+        return Response({'Info': 'Successfully deleted'}, status=status.HTTP_204_NO_CONTENT)
 
 
 class GetUnits(APIView):

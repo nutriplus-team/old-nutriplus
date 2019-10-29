@@ -6,9 +6,16 @@ import PatientRecordCreator from "./PatientRecord/PatientRecordCreator/PatientRe
 import PatientRecord from "./PatientRecord/PatientRecord";
 import { Route, Switch, NavLink } from "react-router-dom";
 import { sendAuthenticatedRequest } from "../../utility/httpHelper";
+import Paginator from "../../utility/paginator";
+import classes from "./Patients.module.css";
 
 class Patients extends Component {
-  state = { patients: null, error: null };
+  state = {
+    patientsQueryInfo: null,
+    error: null,
+    hasNext: false,
+    hasPrevious: false
+  };
 
   componentDidMount = async () => {
     sendAuthenticatedRequest(
@@ -18,7 +25,13 @@ class Patients extends Component {
         this.setState({
           error: message
         }),
-      info => this.setState({ patients: info.results, error: null })
+      info =>
+        this.setState({
+          patientsQueryInfo: info,
+          error: null,
+          hasPrevious: false,
+          hasNext: info.next !== null
+        })
     );
   };
 
@@ -48,7 +61,7 @@ class Patients extends Component {
             path="/pacientes"
             exact
             render={() => (
-              <div>
+              <div className={classes.patients}>
                 <Button
                   color="teal"
                   size="small"
@@ -57,17 +70,34 @@ class Patients extends Component {
                   Registrar paciente
                 </Button>
                 <br />
-                <ul>
-                  {this.state.patients
-                    ? this.state.patients.map(patient => (
-                        <li key={patient.id}>
-                          <NavLink to={"/pacientes/" + patient.id}>
-                            {patient.name}
-                          </NavLink>
-                        </li>
-                      ))
-                    : null}
-                </ul>
+                {this.state.patientsQueryInfo && (
+                  <Paginator
+                    queryResults={this.state.patientsQueryInfo}
+                    filter={() => true}
+                    listElementMap={patient => (
+                      <li key={patient.id}>
+                        <NavLink to={"/pacientes/" + patient.id}>
+                          {patient.name}
+                        </NavLink>
+                      </li>
+                    )}
+                    setResults={patientInfo =>
+                      this.setState({ patientsQueryInfo: patientInfo })
+                    }
+                    setHasNext={value => this.setState({ hasNext: value })}
+                    setHasPrevious={value =>
+                      this.setState({ hasPrevious: value })
+                    }
+                    setMessage={message =>
+                      this.setState({
+                        error: message
+                      })
+                    }
+                    hasPrevious={this.state.hasPrevious}
+                    hasNext={this.state.hasNext}
+                    isList
+                  />
+                )}
                 {this.state.error && <p>{this.state.error}</p>}
               </div>
             )}
