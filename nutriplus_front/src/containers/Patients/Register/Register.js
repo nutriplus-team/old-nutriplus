@@ -101,19 +101,6 @@ const Register = props => {
         )
       })
     );
-    //   const res2 = await fetch("http://localhost:8080/user/token/refresh/", {
-    //     method: "post",
-    //     body: JSON.stringify({
-    //       refresh: localStorage.getItem("stored_refresh")
-    //     }),
-    //     headers: new Headers({
-    //       "Content-Type": "application/json"
-    //     })
-    //   });
-    //   const info2 = await res2.json();
-    //   console.log(info2);
-    //   localStorage.setItem("stored_token", info2.access);
-    //   this.setState({ message: "Sessão restaurada!" });
   };
 
   const handlefoodClick = food => {
