@@ -49,6 +49,11 @@ const Register = props => {
   };
 
   const register = async () => {
+    const fullRegex = /^\d{2}\/\d{2}\/\d{4}$/;
+    if (!fullRegex.test(dob)) {
+      setMessage("A data não está no formato DD-MM-YYYY!");
+      return;
+    }
     const day = +dob.slice(0, 2);
     const month = +dob.slice(3, 5);
     const year = +dob.slice(6);
@@ -136,22 +141,22 @@ const Register = props => {
               iconPosition="left"
               placeholder="DD/MM/YYYY"
               value={dob}
-              // TODO: make this update function foolproof
               onChange={event => {
+                const fullRegex = /^\d{0,3}$|^\d{0,2}\/\d{0,3}$|^\d{0,2}\/\d{0,2}\/\d{0,4}$/;
+                const monthBeginRegex = /^\d{3}$/;
+                const yearBeginRegex = /^\d{0,2}\/\d{3}$/;
                 const inputDob = event.target.value;
-                const actualIndex = dob.length;
-                if (inputDob.length > actualIndex) {
-                  const lastChar = inputDob[actualIndex];
-                  if (lastChar < "0" || lastChar > "9") {
-                    return;
-                  }
-                  if (actualIndex === 2 || actualIndex === 5) {
+                if (!fullRegex.test(inputDob)) {
+                  return;
+                }
+                const len = dob.length;
+                if (inputDob.length > len) {
+                  if (
+                    monthBeginRegex.test(inputDob) ||
+                    yearBeginRegex.test(inputDob)
+                  ) {
                     // First month digit or year digit was just filled
                     setDob(inputDob.slice(0, -1) + "/" + inputDob.slice(-1));
-                    return;
-                  }
-                  if (actualIndex === 10) {
-                    // Date should be finished
                     return;
                   }
                 }

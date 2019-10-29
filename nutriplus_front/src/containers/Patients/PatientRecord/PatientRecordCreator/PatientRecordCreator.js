@@ -80,11 +80,10 @@ class PatientRecordCreator extends Component {
                 <Form.Input
                   icon="weight"
                   iconPosition="left"
-                  placeholder="Peso (em kg). Ex: 51.5"
+                  placeholder="Peso (em kg). Ex: 51.53"
                   onChange={event => {
-                    for (const char of event.target.value) {
-                      if ((char < "0" || char > "9") && char !== ".") return;
-                    }
+                    const weightRegex = /^\d{0,3}\.\d{0,2}$|^\d{0,3}$/;
+                    if (!weightRegex.test(event.target.value)) return;
                     this.setState({ weight: event.target.value, message: "" });
                   }}
                   value={this.state.weight}
@@ -95,8 +94,8 @@ class PatientRecordCreator extends Component {
                   placeholder="Altura(em m). Ex: 1.81"
                   value={this.state.height}
                   onChange={event => {
-                    for (const char of event.target.value)
-                      if ((char < "0" || char > "9") && char !== ".") return;
+                    const heightRegex = /^\d{0,1}\.\d{0,2}$|^\d{0,1}$/;
+                    if (!heightRegex.test(event.target.value)) return;
                     this.setState({ height: event.target.value, message: "" });
                   }}
                 />

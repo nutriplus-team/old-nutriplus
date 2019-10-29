@@ -29,25 +29,29 @@ const paginator = props => {
   return (
     <React.Fragment>
       {results}
-      <Button
-        onClick={() => handleChangePage("previous")}
-        icon
-        floated="left"
-        size={props.buttonSize || "medium"}
-        disabled={!props.hasPrevious}
-      >
-        <Icon name="angle double left" />
-      </Button>
+      {(results.length !== 0 || results.length === null) && (
+        <React.Fragment>
+          <Button
+            onClick={() => handleChangePage("previous")}
+            icon
+            floated="left"
+            size={props.buttonSize || "medium"}
+            disabled={!props.hasPrevious}
+          >
+            <Icon name="angle double left" />
+          </Button>
 
-      <Button
-        onClick={() => handleChangePage("next")}
-        disabled={!props.hasNext}
-        icon
-        floated="right"
-        size={props.buttonSize || "medium"}
-      >
-        <Icon name="angle double right" />
-      </Button>
+          <Button
+            onClick={() => handleChangePage("next")}
+            disabled={!props.hasNext}
+            icon
+            floated="right"
+            size={props.buttonSize || "medium"}
+          >
+            <Icon name="angle double right" />
+          </Button>
+        </React.Fragment>
+      )}
     </React.Fragment>
   );
 };
