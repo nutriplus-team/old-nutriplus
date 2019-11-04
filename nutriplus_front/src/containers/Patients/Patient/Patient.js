@@ -21,7 +21,7 @@ class Patient extends Component {
       const query = new URLSearchParams(this.props.location.search);
       if (query.get("refresh")) {
         sendAuthenticatedRequest(
-          "http://localhost:8080/patients/get-records/" + params["id"] + "/",
+          "https://nutriplusback.herokuapp.com/patients/get-records/" + params["id"] + "/",
           "get",
           message => {
             this.setState({
@@ -43,7 +43,7 @@ class Patient extends Component {
   componentDidMount = async () => {
     const params = this.props.match.params;
     sendAuthenticatedRequest(
-      "http://localhost:8080/patients/get-info/" + params["id"] + "/",
+      "https://nutriplusback.herokuapp.com/patients/get-info/" + params["id"] + "/",
       "get",
       message =>
         this.setState({
@@ -52,7 +52,7 @@ class Patient extends Component {
       info => this.setState({ info: info })
     );
     sendAuthenticatedRequest(
-      "http://localhost:8080/patients/get-records/" + params["id"] + "/",
+      "https://nutriplusback.herokuapp.com/patients/get-records/" + params["id"] + "/",
       "get",
       message => {
         this.setState({

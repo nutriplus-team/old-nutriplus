@@ -8,7 +8,7 @@ class PatientRecord extends Component {
   componentDidMount = async () => {
     const params = this.props.match.params;
     sendAuthenticatedRequest(
-      "http://localhost:8080/patients/get-single-record/" +
+      "https://nutriplusback.herokuapp.com/patients/get-single-record/" +
         params["ficha_id"] +
         "/",
       "get",
@@ -19,7 +19,7 @@ class PatientRecord extends Component {
       results => this.setState({ record: results })
     );
     sendAuthenticatedRequest(
-      "http://localhost:8080/patients/get-info/" + params["id"] + "/",
+      "https://nutriplusback.herokuapp.com/patients/get-info/" + params["id"] + "/",
       "get",
       message =>
         this.setState({

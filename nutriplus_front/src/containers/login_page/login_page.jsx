@@ -13,7 +13,7 @@ class Login extends Component {
   state = {};
 
   login = async () => {
-    const res = await fetch("http://localhost:8080/user/login/", {
+    const res = await fetch("https://nutriplusback.herokuapp.com/user/login/", {
       method: "post",
       body: JSON.stringify({
         username: this.state.username,
