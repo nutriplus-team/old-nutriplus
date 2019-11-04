@@ -12,23 +12,20 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 
 import os
 import datetime
+from decouple import config
+from dj_database_url import parse as dburl
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
+#STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'g*py-lx%!u$-a2gpds&%byly()d%8u3$+8e%m+&^8a-p622&3$'
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-
+SECRET_KEY = config('SECRET_KEY')
+DEBUG = config('DEBUG', default=False, cast=bool)
 
 # Application definition
 
@@ -66,9 +63,11 @@ ROOT_URLCONF = 'nutriplus.urls'
 
 CORS_ORIGIN_ALLOW_ALL = True
 
+CORS_ORIGIN_WHITE_LIST = [
+    "http://nutriplusfront.herokuapp.com"
+]
 
-
-ALLOWED_HOSTS = ['appnutriplus.herokuapp.com', 'localhost']
+ALLOWED_HOSTS = ['nutriplusback.herokuapp.com', 'localhost', 'nutriplusbfront.herokuapp.com']
 
 TEMPLATES = [
     {
@@ -92,11 +91,10 @@ WSGI_APPLICATION = 'nutriplus.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
+default_dburl = 'sqlite:///' + os.path.join(BASE_DIR, 'db.sqlite3')
+
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
+    'default': config('DATABASE_URL', default=default_dburl, cast=dburl),
 }
 
 REST_FRAMEWORK = {
