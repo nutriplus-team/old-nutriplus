@@ -16,6 +16,7 @@ class Food(models.Model):
     measure_type = models.CharField(max_length=60) # homemade measure, such as a tablespoon or a cup of tea
     measure_amount = models.IntegerField() # amount of measure_type to reach measure_total_grams
     nutrition_facts = models.ForeignKey(NutritionFacts, on_delete=models.CASCADE)
+    # meal_set
 
 
 class Meal(models.Model):

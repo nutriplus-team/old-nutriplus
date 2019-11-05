@@ -13,6 +13,10 @@ class FoodPagination(pagination.PageNumberPagination):
     page_size = 10
 
 
+class MealPagination(pagination.PageNumberPagination):
+    page_size = 10
+
+
 class AddNewFood(generics.CreateAPIView):
     serializer_class = AddNewFoodSerializer
     permission_classes = (IsAuthenticated, )
@@ -156,7 +160,7 @@ class RemoveFood(generics.DestroyAPIView):
 class RemoveAllFood(generics.DestroyAPIView):
     permission_classes = (IsAuthenticated,)
 
-    def get(self):
+    def get(self, request, *args, **kwargs):
         food = Food.objects.all()
         food.delete()
         return Response({'Info': 'Successfully deleted'}, status=status.HTTP_204_NO_CONTENT)
@@ -238,6 +242,25 @@ class ListMeals(generics.ListAPIView):
 
     def get_queryset(self, *args, **kwargs):
         return Meal.objects.all().order_by('meal_name')
+
+
+class GetMeal(generics.ListAPIView):
+    serializer_class = MealSerializer
+    permission_classes = (IsAuthenticated, )
+    pagination_class = MealPagination
+
+    def get(self, *args, **kwargs):
+        id = kwargs['id']
+
+        try:
+            meal = Meal.objects.get(pk=id)
+        except Meal.DoesNotExist:
+            return Response({'Info': 'Not Found'}, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = MealSerializer(meal)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 
 class GetUnits(APIView):
