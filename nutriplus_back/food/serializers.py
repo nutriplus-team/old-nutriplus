@@ -13,6 +13,7 @@ class AddNewFoodSerializer(serializers.Serializer):
     carbohydrates = serializers.FloatField()  # carbohydrates per measure_total_grams
     lipids = serializers.FloatField()  # lipids per measure_total_grams
     fiber = serializers.FloatField()  # fiber per measure_total_grams
+    meal_set = serializers.CharField(max_length=500, allow_blank=True)
 
 
 class NutritionFactsSerializer(serializers.ModelSerializer):
@@ -27,4 +28,17 @@ class FoodSerializer(serializers.ModelSerializer):
     class Meta:
         model = Food
         fields = ('id', 'food_name', 'food_group', 'measure_total_grams', 'measure_type',
-                  'measure_amount', 'nutrition_facts', 'meal_number')
+                  'measure_amount', 'nutrition_facts', 'meal_set')
+
+
+class AddNewMealSerializer(serializers.Serializer):
+    meal_name = serializers.CharField(max_length=60)
+    foods = serializers.CharField(max_length=500, allow_blank=True)
+
+
+class MealSerializer(serializers.ModelSerializer):
+    foods = FoodSerializer(many=True)
+
+    class Meta:
+        model = Meal
+        fields = ('id', 'meal_name', 'foods')
