@@ -21,11 +21,11 @@ class Food(models.Model):
 class Meal(models.Model):
     meal_name = models.CharField(max_length=60, blank=False)
     # Only:
-    # 1 = breakfast
-    # 2 = morning snack
-    # 3 = lunch
-    # 4 = afternoon snack
-    # 5 = pre workout
-    # 6 = dinner
+    # 1 = Breakfast
+    # 2 = Morning snack
+    # 3 = Lunch
+    # 4 = Afternoon snack
+    # 5 = Pre workout
+    # 6 = Dinner
 
     foods = models.ManyToManyField(Food, blank=True)
