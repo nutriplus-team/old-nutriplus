@@ -12,57 +12,68 @@ import random
 import numpy as np
 
 class AutoGenerateMenu(generics.GenericAPIView):
-    #permission_classes = (IsAuthenticated, )
-    permission_classes = (AllowAny, ) #For debugging only
+    permission_classes = (IsAuthenticated, )
+    #permission_classes = (AllowAny, ) #For debugging only
 
     def post(self, request, *args, **kwargs):
-
-        meal_type = int(kwargs['meal'])
         patient_id = kwargs['patient']
 
-        patient_restrictions = Patients.objects.get(pk=patient_id).food_restrictions
+        try:
+            patient = Patients.objects.get(pk=patient_id)
+        except Patients.DoesNotExist:
+            return Response({"Info:": "Patient not found"}, status=status.HTTP_404_NOT_FOUND)
 
 
-        available_foods = Meal.objects.get(pk=meal_type).foods.exclude(
-            pk__in=patient_restrictions.values_list('id', flat=True)
-        )
+        if request.user == patient.nutritionist:
 
-        itens_for_menu = list()
+            meal_type = int(kwargs['meal'])
 
-        max_index = len(available_foods)
-
-        weights = [1, 1, 1, 1, 1]
-
-        if request.data['calories'] == 0:
-            weights[0] = 0
-
-        if request.data['proteins'] == 0:
-            weights[1] = 0
-
-        if request.data['carbohydrates'] == 0:
-            weights[2] = 0
-
-        if request.data['lipids'] == 0:
-            weights[3] = 0
-
-        if request.data['fiber'] == 0:
-            weights[4] = 0
+            patient_restrictions = patient.food_restrictions
 
 
-        target = [weights[0]*float(request.data['calories']),
-                    weights[1]*float(request.data['proteins']),
-                    weights[2]*float(request.data['carbohydrates']),
-                    weights[3]*float(request.data['lipids']),
-                    weights[4]*float(request.data['fiber'])]
+            available_foods = Meal.objects.get(pk=meal_type).foods.exclude(
+                pk__in=patient_restrictions.values_list('id', flat=True)
+            )
+
+            itens_for_menu = list()
+
+            max_index = len(available_foods)
+
+            weights = [1, 1, 1, 1, 1]
+
+            if request.data['calories'] == 0:
+                weights[0] = 0
+
+            if request.data['proteins'] == 0:
+                weights[1] = 0
+
+            if request.data['carbohydrates'] == 0:
+                weights[2] = 0
+
+            if request.data['lipids'] == 0:
+                weights[3] = 0
+
+            if request.data['fiber'] == 0:
+                weights[4] = 0
 
 
-        for i in range(0, 8):
-            itens_for_menu.append(available_foods[random.randrange(max_index)])
-        found, qty = self._meetInTheMiddle(itens_for_menu, target, weights)
+            target = [weights[0]*float(request.data['calories']),
+                        weights[1]*float(request.data['proteins']),
+                        weights[2]*float(request.data['carbohydrates']),
+                        weights[3]*float(request.data['lipids']),
+                        weights[4]*float(request.data['fiber'])]
 
-        serializer = FoodSerializer(found, many=True)
 
-        return Response({"Quantitites:": qty,"Sugestions": serializer.data}, status=status.HTTP_200_OK)
+            for i in range(0, 8):
+                itens_for_menu.append(available_foods[random.randrange(max_index)])
+            found, qty = self._meetInTheMiddle(itens_for_menu, target, weights)
+
+            serializer = FoodSerializer(found, many=True)
+
+            return Response({"Quantitites:": qty,"Sugestions": serializer.data}, status=status.HTTP_200_OK)
+        else:
+            return Response({"Info:": "This patient belongs to another nutritionist."},
+                            status=status.HTTP_401_UNAUTHORIZED)
 
     def _rmse(self, predictions, targets):
         return np.sqrt(((np.array(predictions) - np.array(targets)) ** 2).mean())
