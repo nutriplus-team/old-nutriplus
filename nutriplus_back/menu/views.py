@@ -3,6 +3,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 
 from patients.models import Patients
+from food.models import Meal
 from food.models import Food
 from food.serializers import FoodSerializer
 
@@ -11,19 +12,23 @@ import random
 import numpy as np
 
 class AutoGenerateMenu(generics.GenericAPIView):
-    permission_classes = (IsAuthenticated, )
+    #permission_classes = (IsAuthenticated, )
+    permission_classes = (AllowAny, ) #For debugging only
 
     def post(self, request, *args, **kwargs):
 
-        meal_type = kwargs['meal']
+        meal_type = int(kwargs['meal'])
         patient_id = kwargs['patient']
 
         patient_restrictions = Patients.objects.get(pk=patient_id).food_restrictions
 
         #TODO:Caso o Ocimar mude as tabelas de comida com o meal_type, precisa mudar essa funcao de baixo (precisa ter um dicionario entre numero da refeicao e classe)
-        available_foods = Food.objects.filter(meal_number=meal_type).exclude(
-             pk__in=patient_restrictions.values_list('id', flat=True))
+        # available_foods = Food.objects.filter(meal_number=meal_type).exclude(
+        #      pk__in=patient_restrictions.values_list('id', flat=True))
 
+        available_foods = Meal.objects.get(pk=meal_type).foods.exclude(
+            pk__in=patient_restrictions.values_list('id', flat=True)
+        )
 
         itens_for_menu = list()
 
