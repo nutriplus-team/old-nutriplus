@@ -66,8 +66,11 @@ class EditPatient(generics.UpdateAPIView):
             entry.date_of_birth = serializer.validated_data['date_of_birth']
 
             food_restrictions = str(serializer.validated_data['food_restrictions'])
-            list_of_foods = food_restrictions.split('&')
-            entry.food_restrictions.set(Food.objects.filter(pk__in=list_of_foods))
+            if len(food_restrictions) > 0:
+                list_of_foods = food_restrictions.split('&')
+                entry.food_restrictions.set(Food.objects.filter(pk__in=list_of_foods))
+            else:
+                entry.food_restrictions.set([])
 
             entry.save()
 
