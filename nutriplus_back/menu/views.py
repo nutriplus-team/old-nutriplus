@@ -63,14 +63,20 @@ class AutoGenerateMenu(generics.GenericAPIView):
                         weights[3]*float(request.data['lipids']),
                         weights[4]*float(request.data['fiber'])]
 
+            excluding = set()
 
             for i in range(0, 8):
-                itens_for_menu.append(available_foods[random.randrange(max_index)])
+                number = random.randrange(max_index)
+                if number in excluding:
+                    number = random.randrange(max_index)
+                else:
+                    excluding.add(number)
+                itens_for_menu.append(available_foods[number])
             found, qty = self._meetInTheMiddle(itens_for_menu, target, weights)
 
             serializer = FoodSerializer(found, many=True)
 
-            return Response({"Quantities:": qty,"Sugestions": serializer.data}, status=status.HTTP_200_OK)
+            return Response({"Quantities:": qty,"Suggestions": serializer.data}, status=status.HTTP_200_OK)
         else:
             return Response({"Info:": "This patient belongs to another nutritionist."},
                             status=status.HTTP_401_UNAUTHORIZED)
