@@ -13,10 +13,11 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 import os
 import datetime
 from decouple import config
-from dj_database_url import parse as dburl
+#from dj_database_url import parse as dburl
+import dj_database_url
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 #STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
@@ -93,8 +94,14 @@ WSGI_APPLICATION = 'nutriplus.wsgi.application'
 
 default_dburl = 'sqlite:///' + os.path.join(BASE_DIR, 'db.sqlite3')
 
+# DATABASES = {
+#     'default': config('DATABASE_URL', default=default_dburl, cast=dburl),
+# }
+
 DATABASES = {
-    'default': config('DATABASE_URL', default=default_dburl, cast=dburl),
+    'default': dj_database_url.config(
+        default=config('DATABASE_URL')
+    ),
 }
 
 REST_FRAMEWORK = {
