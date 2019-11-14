@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { Redirect } from "react-router-dom";
 import { Button, Form, Grid, Header, Segment, Input } from "semantic-ui-react";
 import { sendAuthenticatedRequest } from "../../../utility/httpHelper";
 import Paginator from "../../../utility/paginator";
@@ -13,8 +14,27 @@ const Register = props => {
   const [queryResults, setQueryResults] = useState(null);
   const [hasNext, setHasNext] = useState(false);
   const [hasPrevious, setHasPrevious] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [redirectUrl, setRedirectUrl] = useState(null);
 
   const searchRef = useRef();
+
+  useEffect(() => {
+    const params = props.match.params;
+    if (params["id"]) {
+      sendAuthenticatedRequest(
+        "http://localhost:8080/patients/get-info/" + params["id"] + "/",
+        "get",
+        message => setMessage(message),
+        info => {
+          setName(info.name);
+          setDob(info.date_of_birth);
+          setRestrictions(info.food_restrictions);
+        }
+      );
+      setEditing(true);
+    }
+  }, []);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -49,6 +69,12 @@ const Register = props => {
   };
 
   const register = async () => {
+    const params = props.match.params;
+    const fullRegex = /^\d{2}\/\d{2}\/\d{4}$/;
+    if (!fullRegex.test(dob)) {
+      setMessage("A data não está no formato DD-MM-YYYY!");
+      return;
+    }
     const day = +dob.slice(0, 2);
     const month = +dob.slice(3, 5);
     const year = +dob.slice(6);
@@ -83,37 +109,47 @@ const Register = props => {
       setMessage("Não há nome!");
       return;
     }
-    sendAuthenticatedRequest(
-      "http://localhost:8080/patients/add-new/",
-      "post",
-      message => setMessage(message),
-      () => {
-        setMessage("Cadastro realizado com sucesso!");
-        clearFields();
-      },
-      JSON.stringify({
-        patient: name,
-        date_of_birth: dob,
-        food_restrictions: restrictions.reduce(
-          (total, actual, index, arr) =>
-            total + actual.id + (index === arr.length - 1 ? "" : "&"),
-          ""
-        )
-      })
-    );
-    //   const res2 = await fetch("http://localhost:8080/user/token/refresh/", {
-    //     method: "post",
-    //     body: JSON.stringify({
-    //       refresh: localStorage.getItem("stored_refresh")
-    //     }),
-    //     headers: new Headers({
-    //       "Content-Type": "application/json"
-    //     })
-    //   });
-    //   const info2 = await res2.json();
-    //   console.log(info2);
-    //   localStorage.setItem("stored_token", info2.access);
-    //   this.setState({ message: "Sessão restaurada!" });
+    if (!editing) {
+      sendAuthenticatedRequest(
+        "http://localhost:8080/patients/add-new/",
+        "post",
+        message => setMessage(message),
+        () => {
+          setMessage("Cadastro realizado com sucesso!");
+          clearFields();
+          setRedirectUrl("/pacientes");
+        },
+        JSON.stringify({
+          patient: name,
+          date_of_birth: dob,
+          food_restrictions: restrictions.reduce(
+            (total, actual, index, arr) =>
+              total + actual.id + (index === arr.length - 1 ? "" : "&"),
+            ""
+          )
+        })
+      );
+    } else {
+      sendAuthenticatedRequest(
+        "http://localhost:8080/patients/edit/" + props.match.params["id"] + "/",
+        "post",
+        message => setMessage(message),
+        () => {
+          setMessage("Paciente editado com sucesso!");
+          clearFields();
+          setRedirectUrl("/pacientes/" + params["id"]);
+        },
+        JSON.stringify({
+          patient: name,
+          date_of_birth: dob,
+          food_restrictions: restrictions.reduce(
+            (total, actual, index, arr) =>
+              total + actual.id + (index === arr.length - 1 ? "" : "&"),
+            ""
+          )
+        })
+      );
+    }
   };
 
   const handlefoodClick = food => {
@@ -149,22 +185,22 @@ const Register = props => {
               iconPosition="left"
               placeholder="DD/MM/YYYY"
               value={dob}
-              // TODO: make this update function foolproof
               onChange={event => {
+                const fullRegex = /^\d{0,3}$|^\d{0,2}\/\d{0,3}$|^\d{0,2}\/\d{0,2}\/\d{0,4}$/;
+                const monthBeginRegex = /^\d{3}$/;
+                const yearBeginRegex = /^\d{0,2}\/\d{3}$/;
                 const inputDob = event.target.value;
-                const actualIndex = dob.length;
-                if (inputDob.length > actualIndex) {
-                  const lastChar = inputDob[actualIndex];
-                  if (lastChar < "0" || lastChar > "9") {
-                    return;
-                  }
-                  if (actualIndex === 2 || actualIndex === 5) {
+                if (!fullRegex.test(inputDob)) {
+                  return;
+                }
+                const len = dob.length;
+                if (inputDob.length > len) {
+                  if (
+                    monthBeginRegex.test(inputDob) ||
+                    yearBeginRegex.test(inputDob)
+                  ) {
                     // First month digit or year digit was just filled
                     setDob(inputDob.slice(0, -1) + "/" + inputDob.slice(-1));
-                    return;
-                  }
-                  if (actualIndex === 10) {
-                    // Date should be finished
                     return;
                   }
                 }
@@ -229,12 +265,13 @@ const Register = props => {
               </React.Fragment>
             )}
             <Button color="teal" fluid size="large" onClick={register}>
-              Registrar paciente
+              {editing ? "Editar paciente" : "Registrar paciente"}
             </Button>
             <p>{message}</p>
           </Segment>
         </Form>
       </Grid.Column>
+      {redirectUrl && <Redirect to={redirectUrl + "?refresh=true"} />}
     </Grid>
   );
 };

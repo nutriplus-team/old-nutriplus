@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { Redirect } from "react-router-dom";
 import { sendAuthenticatedRequest } from "../../../../utility/httpHelper";
 import {
   Button,
@@ -10,7 +11,15 @@ import {
 } from "semantic-ui-react";
 
 class PatientRecordCreator extends Component {
-  state = { patient: null, weight: "", height: "", obs: "", message: null };
+  state = {
+    patient: null,
+    weight: "",
+    height: "",
+    obs: "",
+    message: null,
+    editing: false,
+    redirectUrl: null
+  };
 
   componentDidMount = async () => {
     const params = this.props.match.params;
@@ -23,6 +32,23 @@ class PatientRecordCreator extends Component {
         }),
       info => this.setState({ patient: info, message: null })
     );
+    if (params["ficha_id"]) {
+      sendAuthenticatedRequest(
+        "http://localhost:8080/patients/get-single-record/" +
+          params["ficha_id"] +
+          "/",
+        "get",
+        message => this.setState({ message: message }),
+        info => {
+          this.setState({
+            weight: info.corporal_mass,
+            height: info.height,
+            obs: info.observations
+          });
+        }
+      );
+      this.setState({ editing: true });
+    }
   };
 
   sendForm = async () => {
@@ -34,27 +60,56 @@ class PatientRecordCreator extends Component {
       +this.state.weight < 1000 &&
       +this.state.height < 3
     ) {
-      sendAuthenticatedRequest(
-        "http://localhost:8080/patients/add-record/" + params["id"] + "/",
-        "post",
-        message =>
-          this.setState({
-            message: message
-          }),
-        () =>
-          this.setState({
-            message: "Ficha salva com sucesso!",
-            weight: "",
-            height: "",
-            obs: ""
-          }),
-        JSON.stringify({
-          corporal_mass: (+this.state.weight).toFixed(2),
-          height: (+this.state.height).toFixed(2),
-          BMI: BMI.toFixed(2),
-          observations: this.state.obs
-        })
-      );
+      if (!this.state.editing) {
+        sendAuthenticatedRequest(
+          "http://localhost:8080/patients/add-record/" + params["id"] + "/",
+          "post",
+          message =>
+            this.setState({
+              message: message
+            }),
+          () =>
+            this.setState({
+              message: "Ficha salva com sucesso!",
+              weight: "",
+              height: "",
+              obs: "",
+              redirectUrl: "/pacientes/" + params["id"]
+            }),
+          JSON.stringify({
+            corporal_mass: (+this.state.weight).toFixed(2),
+            height: (+this.state.height).toFixed(2),
+            BMI: BMI.toFixed(2),
+            observations: this.state.obs
+          })
+        );
+      } else {
+        sendAuthenticatedRequest(
+          "http://localhost:8080/patients/edit-record/" +
+            params["ficha_id"] +
+            "/",
+          "post",
+          message =>
+            this.setState({
+              message: message
+            }),
+          () =>
+            this.setState({
+              message: "Ficha editada com sucesso!",
+              weight: "",
+              height: "",
+              obs: "",
+              redirectUrl:
+                "/pacientes/" + params["id"] + "/ficha/" + params["ficha_id"]
+            }),
+          JSON.stringify({
+            corporal_mass: (+this.state.weight).toFixed(2),
+            height: (+this.state.height).toFixed(2),
+            BMI: BMI.toFixed(2),
+            observations: this.state.obs
+          })
+        );
+      }
     } else {
       this.setState({
         message: "Valores de altura ou peso inválidos!"
@@ -80,11 +135,10 @@ class PatientRecordCreator extends Component {
                 <Form.Input
                   icon="weight"
                   iconPosition="left"
-                  placeholder="Peso (em kg). Ex: 51.5"
+                  placeholder="Peso (em kg). Ex: 51.53"
                   onChange={event => {
-                    for (const char of event.target.value) {
-                      if ((char < "0" || char > "9") && char !== ".") return;
-                    }
+                    const weightRegex = /^\d{0,3}\.\d{0,2}$|^\d{0,3}$/;
+                    if (!weightRegex.test(event.target.value)) return;
                     this.setState({ weight: event.target.value, message: "" });
                   }}
                   value={this.state.weight}
@@ -95,8 +149,8 @@ class PatientRecordCreator extends Component {
                   placeholder="Altura(em m). Ex: 1.81"
                   value={this.state.height}
                   onChange={event => {
-                    for (const char of event.target.value)
-                      if ((char < "0" || char > "9") && char !== ".") return;
+                    const heightRegex = /^\d{0,1}\.\d{0,2}$|^\d{0,1}$/;
+                    if (!heightRegex.test(event.target.value)) return;
                     this.setState({ height: event.target.value, message: "" });
                   }}
                 />
@@ -111,13 +165,16 @@ class PatientRecordCreator extends Component {
                   value={this.state.obs}
                 />
                 <Button color="teal" fluid size="large" onClick={this.sendForm}>
-                  Adicionar ficha
+                  {this.state.editing ? "Editar ficha" : "Adicionar ficha"}
                 </Button>
                 {this.state.message && <p>{this.state.message}</p>}
               </Segment>
             </Form>
           </Grid.Column>
         </Grid>
+        {this.state.redirectUrl && (
+          <Redirect to={this.state.redirectUrl + "?refresh=true"} />
+        )}
       </div>
     );
   }

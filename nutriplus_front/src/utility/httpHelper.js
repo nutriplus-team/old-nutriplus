@@ -30,6 +30,29 @@ export const sendAuthenticatedRequest = async (
   } else if (response.status === 200) {
     afterRequest(responseJson);
   } else if (response.status === 401) {
-    setMessage("A sua sessão expirou! Por favor dê logout e login de novo.");
+    setMessage("A sua sessão expirou! Logando de novo...");
+    const res2 = await fetch("http://localhost:8080/user/token/refresh/", {
+      method: "post",
+      body: JSON.stringify({
+        refresh: localStorage.getItem("stored_refresh")
+      }),
+      headers: new Headers({
+        "Content-Type": "application/json"
+      })
+    });
+    const info2 = await res2.json();
+    if (res2.status === 400) {
+      setMessage(
+        "Houve algum problema ao tentar carregar a ficha do paciente!"
+      );
+    } else if (res2.status === 200) {
+      localStorage.setItem("stored_token", info2.access);
+      setMessage("Sessão restaurada!");
+      sendAuthenticatedRequest(url, method, setMessage, afterRequest, body);
+    } else if (res2.status === 401) {
+      setMessage(
+        "A sua sessão expirou! Por favor, deslogue e logue de novo, por questão de segurança."
+      );
+    }
   }
 };

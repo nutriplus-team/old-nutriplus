@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { Redirect } from "react-router-dom";
 import { Button } from "semantic-ui-react";
 import { sendAuthenticatedRequest } from "../../../utility/httpHelper";
 import Paginator from "../../../utility/paginator";
@@ -10,7 +11,33 @@ class Patient extends Component {
     info: null,
     error: null,
     hasNext: false,
-    hasPrevious: false
+    hasPrevious: false,
+    redirect: false
+  };
+
+  componentDidUpdate = async () => {
+    if (this.props.location.search.length > 0) {
+      const params = this.props.match.params;
+      const query = new URLSearchParams(this.props.location.search);
+      if (query.get("refresh")) {
+        sendAuthenticatedRequest(
+          "http://localhost:8080/patients/get-records/" + params["id"] + "/",
+          "get",
+          message => {
+            this.setState({
+              error: message
+            });
+          },
+          recordInfo =>
+            this.setState({
+              recordQueryInfo: recordInfo,
+              hasPrevious: false,
+              hasNext: recordInfo.next !== null,
+              redirect: true
+            })
+        );
+      }
+    }
   };
 
   componentDidMount = async () => {
@@ -49,6 +76,16 @@ class Patient extends Component {
         {this.state.info ? (
           <div>
             <h3>{this.state.info.name}</h3>
+            <Button
+              style={{ margin: "10px" }}
+              color="teal"
+              size="small"
+              onClick={() =>
+                this.props.history.push("/pacientes/" + params["id"] + "/edit")
+              }
+            >
+              Editar dados do paciente
+            </Button>
             <p>Data de nascimento: {this.state.info.date_of_birth}</p>
             <p>
               Restrições alimentares:{" "}
@@ -65,6 +102,7 @@ class Patient extends Component {
           </div>
         ) : null}
         <Button
+          style={{ margin: "10px" }}
           color="teal"
           size="small"
           onClick={() =>
@@ -116,6 +154,15 @@ class Patient extends Component {
         ) : (
           <p>Ainda não há uma ficha para esse paciente!</p>
         )}
+        <Button
+          className={classes.backButton}
+          color="teal"
+          size="medium"
+          onClick={() => this.props.history.push("/pacientes")}
+        >
+          Voltar à página de pacientes
+        </Button>
+        {this.state.redirect && <Redirect to={"/pacientes/" + params["id"]} />}
       </div>
     );
   }

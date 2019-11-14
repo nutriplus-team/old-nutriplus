@@ -28,7 +28,7 @@ class AddNewPatient(generics.CreateAPIView):
             new_entry.save()
 
             food_restrictions = str(serializer.validated_data['food_restrictions'])
-            if (len(food_restrictions) > 0):
+            if len(food_restrictions) > 0:
                 list_of_foods = food_restrictions.split('&')
                 new_entry.food_restrictions.set(Food.objects.filter(pk__in=list_of_foods))
             else:
@@ -66,8 +66,11 @@ class EditPatient(generics.UpdateAPIView):
             entry.date_of_birth = serializer.validated_data['date_of_birth']
 
             food_restrictions = str(serializer.validated_data['food_restrictions'])
-            list_of_foods = food_restrictions.split('&')
-            entry.food_restrictions.set(Food.objects.filter(pk__in=list_of_foods))
+            if len(food_restrictions) > 0:
+                list_of_foods = food_restrictions.split('&')
+                entry.food_restrictions.set(Food.objects.filter(pk__in=list_of_foods))
+            else:
+                entry.food_restrictions.set([])
 
             entry.save()
 
@@ -150,7 +153,7 @@ class EditPatientRecord(generics.UpdateAPIView):
 
             new_serializer = PatientRecordSerializer(record)
 
-            return Response({'Info': 'Successfully edied', 'Record': new_serializer.data}, status=status.HTTP_200_OK)
+            return Response({'Info': 'Successfully edited', 'Record': new_serializer.data}, status=status.HTTP_200_OK)
 
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -206,9 +209,21 @@ class GetSingleRecord(generics.GenericAPIView):
 
         try:
             record = PatientRecord.objects.get(pk=kwargs['id'])
-        except PatientRecordSerializer.DoesNotExist:
+        except PatientRecord.DoesNotExist:
             return Response({'Info': 'Patient does not exist'}, status=status.HTTP_400_BAD_REQUEST)
 
         serializer = PatientRecordSerializer(record)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+
+class RemovePatient(generics.DestroyAPIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request, *args, **kwargs):
+        try:
+            patient = Patients.objects.get(pk=kwargs['id'])
+        except Patients.DoesNotExist:
+            return Response({'Info': 'Not Found'}, status=status.HTTP_400_BAD_REQUEST)
+
+        patient.delete()
+        return Response({'Info': 'Successfully deleted'}, status=status.HTTP_200_OK)

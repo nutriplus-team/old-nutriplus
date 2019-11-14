@@ -1,8 +1,6 @@
 from django.urls import path
 #from django.conf.urls import url
-from .views import (AddNewPatient, SearchPatients, EditPatient, AddPatientRecord,
-                    EditPatientRecord, GetPatientInfo, GetPatientRecords, GetAllPatients,
-                    GetSingleRecord)
+from .views import *
 
 urlpatterns = [
     path(r'add-new/', AddNewPatient.as_view(), name='NewPatientAddition'),
@@ -14,4 +12,5 @@ urlpatterns = [
     path(r'get-records/<int:id>/', GetPatientRecords.as_view(), name='GetRecords'),
     path(r'get-all-patients/', GetAllPatients.as_view(), name='AllPatients'),
     path(r'get-single-record/<int:id>/', GetSingleRecord.as_view(), name='SingleRecord'),
+    path(r'remove-patient/<int:id>/', RemovePatient.as_view(), name='RemovePatient'),
 ]

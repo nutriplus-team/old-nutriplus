@@ -4,3 +4,5 @@ migrations
 yarn.lock
 .directory
 venv
+*/__pycache__/
+*/migrations/
