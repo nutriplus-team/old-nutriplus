@@ -1,2 +1,8 @@
+__pycache__
+migrations
+.idea
+yarn.lock
+.directory
+venv
 */__pycache__/
 */migrations/

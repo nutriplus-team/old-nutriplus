@@ -1,0 +1,2 @@
+web: gunicorn nutriplus.wsgi --log-file -
+# web: gunicorn nutriplusback:app

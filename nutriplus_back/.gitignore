@@ -1,3 +1,6 @@
-*/__pycache__/
+__pycache__/
 */migrations/
 .idea
+db.sqlite3
+venv
+activate
