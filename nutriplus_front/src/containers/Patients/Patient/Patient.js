@@ -12,7 +12,7 @@ class Patient extends Component {
     error: null,
     hasNext: false,
     hasPrevious: false,
-    redirect: false
+    redirectUrl: null
   };
 
   componentDidUpdate = async () => {
@@ -33,7 +33,7 @@ class Patient extends Component {
               recordQueryInfo: recordInfo,
               hasPrevious: false,
               hasNext: recordInfo.next !== null,
-              redirect: true
+              redirectUrl: "/pacientes/" + params["id"]
             })
         );
       }
@@ -65,6 +65,22 @@ class Patient extends Component {
           hasPrevious: false,
           hasNext: recordInfo.next !== null
         })
+    );
+  };
+
+  deletePacient = async () => {
+    const params = this.props.match.params;
+    sendAuthenticatedRequest(
+      "http://localhost:8080/patients/remove-patient/" + params["id"] + "/",
+      "get",
+      message => {
+        this.setState({
+          error: message
+        });
+      },
+      () => {
+        this.setState({ redirectUrl: "/pacientes?refresh=true" });
+      }
     );
   };
 
@@ -162,7 +178,15 @@ class Patient extends Component {
         >
           Voltar à página de pacientes
         </Button>
-        {this.state.redirect && <Redirect to={"/pacientes/" + params["id"]} />}
+        <Button
+          style={{ margin: "200px auto" }}
+          color="red"
+          size="small"
+          onClick={this.deletePacient}
+        >
+          Excluir paciente
+        </Button>
+        {this.state.redirectUrl && <Redirect to={this.state.redirectUrl} />}
       </div>
     );
   }

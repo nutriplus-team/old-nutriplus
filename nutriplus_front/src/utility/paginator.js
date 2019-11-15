@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Icon } from "semantic-ui-react";
+import { Button, Icon, Table } from "semantic-ui-react";
 
 import { sendAuthenticatedRequest } from "./httpHelper";
 
@@ -26,30 +26,45 @@ const paginator = props => {
     results = <ul>{results}</ul>;
   }
 
+  if (props.isTable) {
+    results = (
+      <Table>
+        {props.tableHeader}
+        <Table.Body>{results}</Table.Body>
+      </Table>
+    );
+  }
+
+  const prevButton = (
+    <Button
+      onClick={() => handleChangePage("previous")}
+      icon
+      floated="left"
+      size={props.buttonSize || "medium"}
+      disabled={!props.hasPrevious}
+    >
+      <Icon name="angle double left" />
+    </Button>
+  );
+  const nextButton = (
+    <Button
+      onClick={() => handleChangePage("next")}
+      disabled={!props.hasNext}
+      icon
+      floated="right"
+      size={props.buttonSize || "medium"}
+    >
+      <Icon name="angle double right" />
+    </Button>
+  );
+
   return (
     <React.Fragment>
       {results}
       {(props.queryResults.next || props.queryResults.previous) && (
         <React.Fragment>
-          <Button
-            onClick={() => handleChangePage("previous")}
-            icon
-            floated="left"
-            size={props.buttonSize || "medium"}
-            disabled={!props.hasPrevious}
-          >
-            <Icon name="angle double left" />
-          </Button>
-
-          <Button
-            onClick={() => handleChangePage("next")}
-            disabled={!props.hasNext}
-            icon
-            floated="right"
-            size={props.buttonSize || "medium"}
-          >
-            <Icon name="angle double right" />
-          </Button>
+          {prevButton}
+          {nextButton}
         </React.Fragment>
       )}
     </React.Fragment>

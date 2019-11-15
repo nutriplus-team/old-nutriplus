@@ -1,9 +1,10 @@
 import React, { Component } from "react";
+import { Redirect } from "react-router-dom";
 import { Button } from "semantic-ui-react";
 import { sendAuthenticatedRequest } from "../../../utility/httpHelper";
 
 class PatientRecord extends Component {
-  state = { record: null, error: null, patient: null };
+  state = { record: null, error: null, patient: null, redirectUrl: null };
 
   componentDidMount = async () => {
     const params = this.props.match.params;
@@ -53,6 +54,26 @@ class PatientRecord extends Component {
     return null;
   };
 
+  deleteRecord = async () => {
+    const params = this.props.match.params;
+    sendAuthenticatedRequest(
+      "http://localhost:8080/patients/remove-record/" +
+        params["ficha_id"] +
+        "/",
+      "get",
+      message => {
+        this.setState({
+          error: message
+        });
+      },
+      () => {
+        this.setState({
+          redirectUrl: "/pacientes/" + params["id"] + "/?refresh=true"
+        });
+      }
+    );
+  };
+
   render() {
     const params = this.props.match.params;
     return (
@@ -82,12 +103,22 @@ class PatientRecord extends Component {
           Editar ficha do paciente
         </Button>
         <Button
+          style={{ margin: "200px auto" }}
+          color="red"
+          size="small"
+          onClick={this.deleteRecord}
+        >
+          Excluir ficha
+        </Button>
+        <Button
+          style={{ margin: "10px" }}
           color="teal"
           size="medium"
           onClick={() => this.props.history.push("/pacientes/" + params["id"])}
         >
           Voltar à página do paciente
         </Button>
+        {this.state.redirectUrl && <Redirect to={this.state.redirectUrl} />}
       </div>
     );
   }
