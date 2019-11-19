@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { Table, Segment, Button, Icon, Input } from "semantic-ui-react";
+import { cpus } from "os";
 
 const refeicaoMap = {
   0: "Café da manhã",
@@ -11,27 +12,13 @@ const refeicaoMap = {
 };
 
 const atributos_map = {
-  "Valor Energético (kCal)": "calories",
-  Carboidratos: "carbohydrates",
-  Proteínas: "proteins",
-  Lipídios: "lipids"
+  "Calorias (kcal)": "calories",
+  "Proteínas (g)": "proteins",
+  "Carboidratos (g)": "carbohydrates",
+  "Lipídeos (g)": "lipids",
+  "Fibra Alimentar (g)": "fiber"
 };
-/*
-const foodmap = {
-  sushi: {
-    proteinas: 10,
-    gorduras: 50
-  },
-  abacaxi: {
-    proteinas: 1,
-    gorduras: 5
-  },
-  pimentao: {
-    proteinas: 0,
-    gorduras: 40
-  }
-};
-*/
+
 class Refeicao extends Component {
   state = {
     Disponiveis: [],
@@ -40,10 +27,7 @@ class Refeicao extends Component {
 
   componentDidMount = () => {
     this.setState({
-      Disponiveis: this.comidas_restantes(
-        this.props.COMIDAS,
-        this.props.cardapios[this.props.refeicao]
-      ),
+      Disponiveis: this.props.Available[this.props.refeicao],
       Cardapio: this.props.cardapios[this.props.refeicao],
       valorNutricional: this.calcula_VN(
         this.props.cardapios[this.props.refeicao]
@@ -52,16 +36,7 @@ class Refeicao extends Component {
     });
   };
 
-  comidas_restantes = (comidas, cardapio) => {
-    cardapio.map(comida => {
-      var index = comidas.indexOf(comida);
-      if (index > -1) {
-        comidas.splice(index, 1);
-      }
-    });
-    return comidas;
-  };
-
+  //condensar VN e VNs_i em uma só
   calcula_VN = cardapio => {
     let valorNutricional;
     let factors = this.props.factors[this.props.refeicao];
@@ -70,7 +45,9 @@ class Refeicao extends Component {
       let vn_val = 0;
       cardapio.map(comida => {
         vn_val =
-          vn_val + comida[atributos_map[atributo]] * factors[comida.food_name];
+          vn_val +
+          comida.nutrition_facts[atributos_map[atributo]] *
+            factors[comida.food_name];
       });
       let vn = [atributo, vn_val];
       if (valorNutricional) valorNutricional.push(vn);
@@ -87,7 +64,9 @@ class Refeicao extends Component {
       let vn_val = 0;
       cardapio.map(comida => {
         vn_val =
-          vn_val + comida[atributos_map[atributo]] * factors[comida.food_name];
+          vn_val +
+          comida.nutrition_facts[atributos_map[atributo]] *
+            factors[comida.food_name];
       });
       let vn = [atributo, vn_val];
       if (valorNutricional) valorNutricional.push(vn);
@@ -118,21 +97,24 @@ class Refeicao extends Component {
   };
 
   componentDidUpdate = prevProps => {
-    if (prevProps.refeicao !== this.props.refeicao) {
+    if (
+      prevProps.refeicao !== this.props.refeicao ||
+      prevProps.cardapios !== this.props.cardapios ||
+      prevProps.factors !== this.props.factors
+    ) {
       this.setState({
-        Disponiveis: this.comidas_restantes(
-          this.props.COMIDAS,
-          this.props.cardapios[this.props.refeicao]
-        ),
+        Disponiveis: this.props.Available[this.props.refeicao],
         Cardapio: this.props.cardapios[this.props.refeicao],
         valorNutricional: this.calcula_VN(
           this.props.cardapios[this.props.refeicao]
         ),
         factors: this.props.factors[this.props.refeicao]
       });
+      this.calcula_VNs(this.props.cardapios);
     }
   };
 
+  //somente calcula o VN local
   handleCardapio = cardapio => {
     this.setState({
       valorNutricional: this.calcula_VN(cardapio)
@@ -150,8 +132,13 @@ class Refeicao extends Component {
               <center>{food.food_name}</center>
             </Segment>
             <Button.Group>
-              <Button disabled icon>
-                <Icon name="angle double left" />
+              <Button
+                food={food}
+                type="Close Disponíveis"
+                onClick={this.handleItemClick}
+                icon
+              >
+                <Icon name="window close outline" />
               </Button>
 
               <Button
@@ -181,8 +168,13 @@ class Refeicao extends Component {
               >
                 <Icon name="angle double left" />
               </Button>
-              <Button disabled icon>
-                <Icon name="angle double right" />
+              <Button
+                food={food}
+                type="Close Cardapio"
+                onClick={this.handleItemClick}
+                icon
+              >
+                <Icon name="window close outline" />
               </Button>
             </Button.Group>
           </Segment.Group>
@@ -215,21 +207,31 @@ class Refeicao extends Component {
     } else return null;
   };
 
-  handleItemClick = (e, { direction, food, type }) => {
+  handleItemClick = (e, { food, type }) => {
     let Disponiveis = this.state.Disponiveis;
     let Cardapio = this.state.Cardapio;
     if (type === "Disponiveis") {
       Disponiveis.splice(Disponiveis.indexOf(food), 1);
       Cardapio.push(food);
-      this.setState({ Disponiveis: Disponiveis, Cardapio: Cardapio });
     }
     if (type === "Cardapio") {
       Cardapio.splice(Cardapio.indexOf(food), 1);
       Disponiveis.push(food);
-      this.setState({ Cardapio: Cardapio, Disponiveis: Disponiveis });
     }
+    if (type === "Close Disponíveis") {
+      Disponiveis.splice(Disponiveis.indexOf(food), 1);
+    }
+    if (type === "Close Cardapio") {
+      Cardapio.splice(Cardapio.indexOf(food), 1);
+    }
+    this.setState({
+      Disponiveis: Disponiveis,
+      Cardapio: Cardapio
+    });
+    console.log(Cardapio);
     this.handleCardapio(Cardapio);
     this.props.handleCardapios(this.state.refeicao, Cardapio);
+    this.props.handleAvailable(this.state.refeicao, Disponiveis);
     this.calcula_VNs(this.props.cardapios);
   };
 
@@ -237,12 +239,12 @@ class Refeicao extends Component {
     let valorNutricional = this.state.valorNutricional;
     let content;
     if (valorNutricional) {
-      console.log(valorNutricional);
+      //console.log(valorNutricional);
       content = valorNutricional.map(valor => {
         return (
           <Table.Row>
             <Table.Cell>{valor[0]}</Table.Cell>
-            <Table.Cell>{valor[1]}</Table.Cell>
+            <Table.Cell>{valor[1].toFixed(2)}</Table.Cell>
           </Table.Row>
         );
       });
@@ -266,7 +268,7 @@ class Refeicao extends Component {
   setFactor = async (comida, event) => {
     if (event) {
       let factors = this.props.factors[this.props.refeicao];
-      //console.log(factors);
+      console.log(factors);
       if (factors) {
       } else {
         factors = {};
@@ -297,6 +299,9 @@ class Refeicao extends Component {
                 onChange={e => this.setFactor(comida, e)}
               ></Input>
             </Table.Cell>
+            <Table.Cell>
+              {comida.measure_amount + " " + comida.measure_type}
+            </Table.Cell>
           </Table.Row>
         );
       });
@@ -306,8 +311,9 @@ class Refeicao extends Component {
         <Table.Header>
           <Table.HeaderCell>Alimento</Table.HeaderCell>
           <Table.HeaderCell>Quantidade (porções)</Table.HeaderCell>
-          {content}
+          <Table.HeaderCell>Uma porção equivale</Table.HeaderCell>
         </Table.Header>
+        {content}
       </Table>
     );
     return table;

@@ -22,7 +22,7 @@ class Infos extends Component {
           return (
             <Table.Row>
               <Table.Cell>{valor[0]}</Table.Cell>
-              <Table.Cell>{valor[1]}</Table.Cell>
+              <Table.Cell>{valor[1].toFixed(2)}</Table.Cell>
             </Table.Row>
           );
         })}
