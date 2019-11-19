@@ -76,7 +76,7 @@ class AutoGenerateMenu(generics.GenericAPIView):
 
             serializer = FoodSerializer(found, many=True)
 
-            return Response({"Quantities:": qty,"Suggestions": serializer.data}, status=status.HTTP_200_OK)
+            return Response({"Quantities": qty,"Suggestions": serializer.data}, status=status.HTTP_200_OK)
         else:
             return Response({"Info:": "This patient belongs to another nutritionist."},
                             status=status.HTTP_401_UNAUTHORIZED)
