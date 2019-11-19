@@ -14,7 +14,9 @@ const paginator = props => {
         props.setResults(info);
         props.setHasPrevious(info.previous !== null);
         props.setHasNext(info.next != null);
-      }
+      },
+      null,
+      true
     );
   };
 

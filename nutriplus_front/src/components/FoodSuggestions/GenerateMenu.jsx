@@ -77,7 +77,7 @@ class GenerateMenu extends Component {
     console.log("content: ", content);
     let response;
     await sendAuthenticatedRequest(
-      "/menu/generate/1/1/",
+      `/menu/generate/${this.props.refeicao + 1}/${this.props.patient_id}/`,
       "post",
       () => {},
       resp => (response = resp),

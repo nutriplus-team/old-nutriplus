@@ -3,12 +3,16 @@ export const sendAuthenticatedRequest = async (
   method,
   setMessage,
   afterRequest,
-  body = null
+  body = null,
+  fullURL = false
 ) => {
   let response;
   let base_url = "http://localhost:8080";
+  if (!fullURL) {
+    url = base_url + url;
+  }
   if (body) {
-    response = await fetch(base_url + url, {
+    response = await fetch(url, {
       method: method,
       body: body,
       headers: new Headers({
@@ -17,7 +21,7 @@ export const sendAuthenticatedRequest = async (
       })
     });
   } else {
-    response = await fetch(base_url + url, {
+    response = await fetch(url, {
       method: method,
       headers: new Headers({
         Authorization: "Port " + localStorage.getItem("stored_token")
@@ -49,13 +53,7 @@ export const sendAuthenticatedRequest = async (
     } else if (res2.status === 200) {
       localStorage.setItem("stored_token", info2.access);
       setMessage("Sessão restaurada!");
-      sendAuthenticatedRequest(
-        base_url + url,
-        method,
-        setMessage,
-        afterRequest,
-        body
-      );
+      sendAuthenticatedRequest(url, method, setMessage, afterRequest, body);
     } else if (res2.status === 401) {
       setMessage(
         "A sua sessão expirou! Por favor, deslogue e logue de novo, por questão de segurança."

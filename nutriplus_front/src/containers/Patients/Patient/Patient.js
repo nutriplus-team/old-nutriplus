@@ -129,6 +129,14 @@ class Patient extends Component {
         >
           Criar ficha para o paciente
         </Button>
+        <Button
+          style={{ margin: "10px" }}
+          color="teal"
+          size="small"
+          onClick={() => this.props.history.push("/cardapio/" + params["id"])}
+        >
+          Criar cardápio para o paciente
+        </Button>
         {this.state.recordQueryInfo ? (
           <div className={classes.records}>
             <Paginator
