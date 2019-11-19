@@ -61,7 +61,7 @@ class App extends Component {
         <Switch>
           <Route path="/pacientes" render={props => <Patients {...props} />} />
           <Route
-            path="/cardapio"
+            path="/cardapio/:id"
             render={props => <FoodSuggestions {...props} />}
           />
           <Route

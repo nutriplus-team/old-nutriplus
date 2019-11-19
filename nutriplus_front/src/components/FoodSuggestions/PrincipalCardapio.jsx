@@ -106,7 +106,7 @@ const PrincipalCardapio = props => {
           cardapios: cardapios,
           factors: factors
         });
-        props.history.push("/cardapio/fim");
+        props.history.push("/cardapio/" + props.match.params["id"] + "/fim");
       } else setRefeicao(refeicao + 1);
     } else if (name === "Prev") {
       if (refeicao > 0) setRefeicao(refeicao - 1);
@@ -240,6 +240,7 @@ const PrincipalCardapio = props => {
               handleCardapios={handleCardapios} // handle do cardapio em si
               handleFactors={handleFactors} // handle dos fatores
               factors={factors}
+              patient_id={props.match.params["id"]}
             ></GenerateMenu>
           </Grid.Column>
         </Grid>

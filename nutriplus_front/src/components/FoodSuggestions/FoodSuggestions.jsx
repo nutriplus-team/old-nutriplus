@@ -50,7 +50,7 @@ class Cardapio extends Component {
       routes = (
         <Switch>
           <Route
-            path="/cardapio/principal"
+            path="/cardapio/:id/principal"
             render={props => (
               <PrincipalCardapio
                 {...props}
@@ -60,7 +60,7 @@ class Cardapio extends Component {
             )}
           />
           <Route
-            path="/cardapio/fim"
+            path="/cardapio/:id/fim"
             render={props => (
               <EndCardapio
                 {...props}
@@ -70,7 +70,9 @@ class Cardapio extends Component {
             )}
           />
 
-          <Redirect to="/cardapio/principal" />
+          <Redirect
+            to={`/cardapio/${this.props.match.params["id"]}/principal`}
+          />
         </Switch>
       );
     }
