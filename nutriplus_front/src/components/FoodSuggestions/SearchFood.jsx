@@ -16,7 +16,7 @@ const SearchFood = props => {
       if (searchQuery === searchRef.current.inputRef.current.value) {
         if (searchQuery !== "") {
           sendAuthenticatedRequest(
-            "http://localhost:8080/foods/search/" + searchQuery + "/",
+            "/foods/search/" + searchQuery + "/",
             "get",
             message => {},
             info => {

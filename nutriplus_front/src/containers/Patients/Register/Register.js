@@ -28,7 +28,7 @@ const Register = props => {
   useEffect(() => {
     if (params["id"]) {
       sendAuthenticatedRequest(
-        "http://localhost:8080/patients/get-info/" + params["id"] + "/",
+        "/patients/get-info/" + params["id"] + "/",
         "get",
         message => setMessage(message),
         info => {
@@ -46,7 +46,7 @@ const Register = props => {
       if (restrictionQuery === searchRef.current.inputRef.current.value) {
         if (restrictionQuery !== "") {
           sendAuthenticatedRequest(
-            "http://localhost:8080/foods/search/" + restrictionQuery + "/",
+            "/foods/search/" + restrictionQuery + "/",
             "get",
             message => setMessage(message),
             info => {
@@ -85,7 +85,7 @@ const Register = props => {
     }
     if (!editing) {
       sendAuthenticatedRequest(
-        "http://localhost:8080/patients/add-new/",
+        "/patients/add-new/",
         "post",
         message => setMessage(message),
         () => {
@@ -105,7 +105,7 @@ const Register = props => {
       );
     } else {
       sendAuthenticatedRequest(
-        "http://localhost:8080/patients/edit/" + props.match.params["id"] + "/",
+        "/patients/edit/" + props.match.params["id"] + "/",
         "post",
         message => setMessage(message),
         () => {

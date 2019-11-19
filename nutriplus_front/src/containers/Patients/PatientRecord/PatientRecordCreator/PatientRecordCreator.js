@@ -25,7 +25,7 @@ class PatientRecordCreator extends Component {
   componentDidMount = async () => {
     const params = this.props.match.params;
     sendAuthenticatedRequest(
-      "http://localhost:8080/patients/get-info/" + params["id"] + "/",
+      "/patients/get-info/" + params["id"] + "/",
       "get",
       message =>
         this.setState({
@@ -35,9 +35,7 @@ class PatientRecordCreator extends Component {
     );
     if (params["ficha_id"]) {
       sendAuthenticatedRequest(
-        "http://localhost:8080/patients/get-single-record/" +
-          params["ficha_id"] +
-          "/",
+        "/patients/get-single-record/" + params["ficha_id"] + "/",
         "get",
         message => this.setState({ message: message }),
         info => {
@@ -63,7 +61,7 @@ class PatientRecordCreator extends Component {
     ) {
       if (!this.state.editing) {
         sendAuthenticatedRequest(
-          "http://localhost:8080/patients/add-record/" + params["id"] + "/",
+          "/patients/add-record/" + params["id"] + "/",
           "post",
           message =>
             this.setState({
@@ -86,9 +84,7 @@ class PatientRecordCreator extends Component {
         );
       } else {
         sendAuthenticatedRequest(
-          "http://localhost:8080/patients/edit-record/" +
-            params["ficha_id"] +
-            "/",
+          "/patients/edit-record/" + params["ficha_id"] + "/",
           "post",
           message =>
             this.setState({

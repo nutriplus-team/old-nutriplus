@@ -23,7 +23,7 @@ class Patients extends Component {
       const query = new URLSearchParams(this.props.location.search);
       if (query.get("refresh")) {
         sendAuthenticatedRequest(
-          "http://localhost:8080/patients/get-all-patients/",
+          "/patients/get-all-patients/",
           "get",
           message =>
             this.setState({
@@ -44,7 +44,7 @@ class Patients extends Component {
 
   componentDidMount = async () => {
     sendAuthenticatedRequest(
-      "http://localhost:8080/patients/get-all-patients/",
+      "/patients/get-all-patients/",
       "get",
       message =>
         this.setState({

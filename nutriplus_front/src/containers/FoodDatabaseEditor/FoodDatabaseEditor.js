@@ -15,7 +15,7 @@ const FoodDatabaseEditor = () => {
 
   const initializeTable = useCallback(() => {
     sendAuthenticatedRequest(
-      "http://localhost:8080/foods/list-foods-pagination/",
+      "/foods/list-foods-pagination/",
       "get",
       message => setError(message),
       info => {
@@ -34,7 +34,7 @@ const FoodDatabaseEditor = () => {
       if (restrictionQuery === searchRef.current.inputRef.current.value) {
         if (restrictionQuery !== "") {
           sendAuthenticatedRequest(
-            "http://localhost:8080/foods/search/" + restrictionQuery + "/",
+            "/foods/search/" + restrictionQuery + "/",
             "get",
             message => setError(message),
             info => {
@@ -94,8 +94,8 @@ const FoodDatabaseEditor = () => {
                   <Table.HeaderCell>
                     Peso da porção (em gramas)
                   </Table.HeaderCell>
-                  <Table.HeaderCell>Unidade da medida</Table.HeaderCell>
                   <Table.HeaderCell>Quantidade da medida</Table.HeaderCell>
+                  <Table.HeaderCell>Unidade da medida</Table.HeaderCell>
                   <Table.HeaderCell>Valor energético (kcal)</Table.HeaderCell>
                   <Table.HeaderCell>Proteínas (g)</Table.HeaderCell>
                   <Table.HeaderCell>Carboidratos (g)</Table.HeaderCell>

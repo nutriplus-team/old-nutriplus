@@ -37,7 +37,9 @@ class EndCardapio extends Component {
     let table = (
       <Table>
         <Table.Header>
-          <Table.HeaderCell>Infos</Table.HeaderCell>
+          <Table.Row>
+            <Table.HeaderCell>Infos</Table.HeaderCell>
+          </Table.Row>
         </Table.Header>
         {content}
       </Table>
@@ -96,7 +98,7 @@ class EndCardapio extends Component {
     content = [
       ...content,
       <React.Fragment>
-        <p>TOTAL:</p>
+        <p>Total:</p>
         {this.generateChart(this.props.global.valorNutricional)}
       </React.Fragment>
     ];

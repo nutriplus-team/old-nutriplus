@@ -24,7 +24,7 @@ class Cardapio extends Component {
       mounted: 1
     });
     sendAuthenticatedRequest(
-      "http://localhost:8080/foods/get-units/",
+      "/foods/get-units/",
       "get",
       () => {},
       info => {

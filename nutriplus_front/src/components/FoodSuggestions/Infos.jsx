@@ -16,16 +16,20 @@ class Infos extends Component {
     let table = (
       <Table>
         <Table.Header>
-          <Table.HeaderCell>Infos </Table.HeaderCell>
+          <Table.Row>
+            <Table.HeaderCell>Infos </Table.HeaderCell>
+          </Table.Row>
         </Table.Header>
-        {this.state.valorNutricional.map(valor => {
-          return (
-            <Table.Row>
-              <Table.Cell>{valor[0]}</Table.Cell>
-              <Table.Cell>{valor[1].toFixed(2)}</Table.Cell>
-            </Table.Row>
-          );
-        })}
+        <Table.Body>
+          {this.state.valorNutricional.map(valor => {
+            return (
+              <Table.Row>
+                <Table.Cell>{valor[0]}</Table.Cell>
+                <Table.Cell>{valor[1].toFixed(2)}</Table.Cell>
+              </Table.Row>
+            );
+          })}
+        </Table.Body>
       </Table>
     );
     return table;

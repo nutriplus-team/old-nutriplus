@@ -77,7 +77,7 @@ class StartCardapio extends Component {
     console.log("content: ", content);
 
     sendAuthenticatedRequest(
-      "http://localhost:8080/menu/generate/1/1/",
+      "/menu/generate/1/1/",
       "post",
       () => {},
       resp => console.log("resp: ", resp),

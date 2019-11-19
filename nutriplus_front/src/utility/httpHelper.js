@@ -6,8 +6,9 @@ export const sendAuthenticatedRequest = async (
   body = null
 ) => {
   let response;
+  let base_url = "http://localhost:8080";
   if (body) {
-    response = await fetch(url, {
+    response = await fetch(base_url + url, {
       method: method,
       body: body,
       headers: new Headers({
@@ -16,7 +17,7 @@ export const sendAuthenticatedRequest = async (
       })
     });
   } else {
-    response = await fetch(url, {
+    response = await fetch(base_url + url, {
       method: method,
       headers: new Headers({
         Authorization: "Port " + localStorage.getItem("stored_token")
@@ -31,7 +32,7 @@ export const sendAuthenticatedRequest = async (
     afterRequest(responseJson);
   } else if (response.status === 401) {
     setMessage("A sua sessão expirou! Logando de novo...");
-    const res2 = await fetch("http://localhost:8080/user/token/refresh/", {
+    const res2 = await fetch(base_url + "/user/token/refresh/", {
       method: "post",
       body: JSON.stringify({
         refresh: localStorage.getItem("stored_refresh")
@@ -48,7 +49,13 @@ export const sendAuthenticatedRequest = async (
     } else if (res2.status === 200) {
       localStorage.setItem("stored_token", info2.access);
       setMessage("Sessão restaurada!");
-      sendAuthenticatedRequest(url, method, setMessage, afterRequest, body);
+      sendAuthenticatedRequest(
+        base_url + url,
+        method,
+        setMessage,
+        afterRequest,
+        body
+      );
     } else if (res2.status === 401) {
       setMessage(
         "A sua sessão expirou! Por favor, deslogue e logue de novo, por questão de segurança."

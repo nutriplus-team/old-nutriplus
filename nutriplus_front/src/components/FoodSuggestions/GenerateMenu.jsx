@@ -58,7 +58,9 @@ class GenerateMenu extends Component {
     return (
       <Table>
         <Table.Header>
-          <Table.HeaderCell>{this.state.name}</Table.HeaderCell>
+          <Table.Row>
+            <Table.HeaderCell>{this.state.name}</Table.HeaderCell>
+          </Table.Row>
           {content}
         </Table.Header>
       </Table>
@@ -75,7 +77,7 @@ class GenerateMenu extends Component {
     console.log("content: ", content);
     let response;
     await sendAuthenticatedRequest(
-      "http://localhost:8080/menu/generate/1/1/",
+      "/menu/generate/1/1/",
       "post",
       () => {},
       resp => (response = resp),
@@ -106,14 +108,14 @@ class GenerateMenu extends Component {
     let table = this.generateTable();
     if (table) {
       return (
-        <div>
+        <React.Fragment>
           <center>
             <br></br>
             <h3> Gerador de cardápios</h3>
             {table}
           </center>
           <Button onClick={() => this.handleFetch()}>Gerar!</Button>
-        </div>
+        </React.Fragment>
       );
     } else return "";
   }

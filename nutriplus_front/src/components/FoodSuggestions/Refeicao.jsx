@@ -252,7 +252,9 @@ class Refeicao extends Component {
     let table = (
       <Table>
         <Table.Header>
-          <Table.HeaderCell>Infos locais</Table.HeaderCell>
+          <Table.Row>
+            <Table.HeaderCell>Infos locais</Table.HeaderCell>
+          </Table.Row>
         </Table.Header>
         {content}
       </Table>
@@ -309,11 +311,13 @@ class Refeicao extends Component {
     let table = (
       <Table>
         <Table.Header>
-          <Table.HeaderCell>Alimento</Table.HeaderCell>
-          <Table.HeaderCell>Quantidade (porções)</Table.HeaderCell>
-          <Table.HeaderCell>Uma porção equivale</Table.HeaderCell>
+          <Table.Row>
+            <Table.HeaderCell>Alimento</Table.HeaderCell>
+            <Table.HeaderCell>Quantidade (porções)</Table.HeaderCell>
+            <Table.HeaderCell>Uma porção equivale</Table.HeaderCell>
+          </Table.Row>
         </Table.Header>
-        {content}
+        <Table.Body>{content}</Table.Body>
       </Table>
     );
     return table;

@@ -55,6 +55,13 @@ class EditableTableRow extends Component {
         {Object.keys(this.props.food)
           .filter(key => key !== "id")
           .map(key =>
+            key === "measure_amount"
+              ? "measure_type"
+              : key === "measure_type"
+              ? "measure_amount"
+              : key
+          )
+          .map(key =>
             key === "nutrition_facts" ? (
               Object.keys(this.props.food[key]).map(nutritionKey => (
                 <EditableCell
