@@ -3,10 +3,12 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 
 from patients.models import Patients
-from food.models import Meal
-from food.models import Food
+from food.models import Meal, Food
 from food.serializers import FoodSerializer
 
+
+from .serializers import AddNewMenuSerializer
+from .models import Menu
 import random
 
 import numpy as np
@@ -149,3 +151,160 @@ class AutoGenerateMenu(generics.GenericAPIView):
                     quantities.append(found[3])
 
         return solution, quantities
+
+class AddMenu(generics.CreateAPIView):
+    permission_classes = (IsAuthenticated, )
+
+    def post(self, request, *args, **kwargs):
+        id = kwargs['patient_id']
+
+        try:
+            patient = Patients.objects.get(pk=id)
+        except Patients.DoesNotExist:
+            return Response({"Info:": "Patient does not exist."}, status=status.HTTP_404_NOT_FOUND)
+
+        if patient.nutritionist == request.user:
+            serializer = AddNewMenuSerializer(data=request.data)
+            if serializer.is_valid():
+                new_entry = Menu()
+                new_entry.quantities = serializer.validated_data['quantities']
+                new_entry.patients = patient
+                new_entry.meal_type = Meal.objects.get(pk=serializer.validated_data['meal_type'])
+
+                new_entry.save()
+
+                foods = str(serializer.validated_data['foods'])
+                if len(foods) > 0:
+                    list_of_foods = foods.split('&')
+                    new_entry.foods.set(Food.objects.filter(pk__in=list_of_foods))
+                else:
+                    new_entry.foods.set([])
+
+                new_entry.save()
+
+                quantitites = str(new_entry.quantities)
+                quantitites = quantitites.split('&')
+
+                foods = new_entry.foods.order_by('food_name')
+                food_serializer = FoodSerializer(foods, many=True)
+
+                return Response(
+                    {"pk": new_entry.id, "Meal_Type:": new_entry.meal_type.id, "Quantities": quantitites, "Foods": food_serializer.data})
+
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        else:
+            return Response({"Info:" "This patient belongs to another nutritionist."}, status=status.HTTP_401_UNAUTHORIZED)
+
+class GetMenu(generics.GenericAPIView):
+    permission_classes = (IsAuthenticated, )
+
+    def get(self, request, id):
+        menu_id = id
+        try:
+            menu = Menu.objects.get(pk=menu_id)
+        except Menu.objects.DoesNotExist:
+            return Response({"Info": "Requested Menu Does Not Exist."}, status=status.HTTP_404_NOT_FOUND)
+
+        if menu.patients.nutritionist == request.user:
+            quantitites = str(menu.quantities)
+            quantitites = quantitites.split('&')
+
+            foods = menu.foods.order_by('food_name')
+            food_serializer = FoodSerializer(foods, many=True)
+
+            return Response({"pk": menu.id,"Meal_Type:": menu.meal_type.id, "Quantities": quantitites, "Foods": food_serializer.data})
+        else:
+            return Response({"Info:": "You are not allowed to acess this menu"}, status=status.HTTP_401_UNAUTHORIZED)
+
+class EditMenu(generics.UpdateAPIView):
+    permission_classes = (IsAuthenticated, )
+
+    def post(self, request, *args, **kwargs):
+        menu_id = kwargs['menu_id']
+
+        try:
+            menu = Menu.objects.get(pk=menu_id)
+        except Patients.DoesNotExist:
+            return Response({"Info:": "Menu does not exist."}, status=status.HTTP_404_NOT_FOUND)
+
+        if menu.patients.nutritionist == request.user:
+            serializer = AddNewMenuSerializer(data=request.data)
+            if serializer.is_valid():
+                menu.quantities = serializer.validated_data['quantities']
+                menu.meal_type = Meal.objects.get(pk=serializer.validated_data['meal_type'])
+
+                foods = str(serializer.validated_data['foods'])
+                if len(foods) > 0:
+                    list_of_foods = foods.split('&')
+                    menu.foods.set(Food.objects.filter(pk__in=list_of_foods))
+                else:
+                    menu.foods.set([])
+
+                menu.save()
+
+                quantitites = str(menu.quantities)
+                quantitites = quantitites.split('&')
+
+                foods = menu.foods.order_by('food_name')
+                food_serializer = FoodSerializer(foods, many=True)
+
+                return Response(
+                    {"pk": menu.id, "Meal_Type:": menu.meal_type.id, "Quantities": quantitites, "Foods": food_serializer.data})
+
+
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        else:
+            return Response({"Info:" "This patient belongs to another nutritionist."}, status=status.HTTP_401_UNAUTHORIZED)
+
+class DeleteMenu(generics.DestroyAPIView):
+    permission_classes = (IsAuthenticated, )
+
+    def get(self, request, id):
+        menu_id = id
+
+        try:
+            menu = Menu.objects.get(pk=menu_id)
+        except Menu.objects.DoesNotExist:
+            return Response({"Info": "Menu does not exist"}, status=status.HTTP_404_NOT_FOUND)
+
+        if menu.patients.nutritionist == request.user:
+            menu.delete()
+            return Response({"Info": "Successfully deleted."}, status=status.HTTP_200_OK)
+        else:
+            return Response({"Info": "You are not allowed to delete this menu."}, status=status.HTTP_401_UNAUTHORIZED)
+
+class GetAllMenus(generics.CreateAPIView):
+    permission_classes = (IsAuthenticated, )
+
+    def get(self, request, *args, **kwargs):
+        patient_id = kwargs['patient_id']
+
+        try:
+            patient = Patients.objects.get(pk=patient_id)
+        except Patients.DoesNotExist:
+            return Response({"Info": "Patient does no exist."}, status=status.HTTP_404_NOT_FOUND)
+
+        if patient.nutritionist == request.user:
+            menus = Menu.objects.all()
+
+            response_data = list()
+
+            for object in menus:
+                quantitites = str(object.quantities)
+                quantitites = quantitites.split('&')
+
+                foods = object.foods.order_by('food_name')
+                food_serializer = FoodSerializer(foods, many=True)
+
+                response_data.append(
+                    {"pk": object.id, "Meal_Type:": object.meal_type.id, "Quantities": quantitites,
+                     "Foods": food_serializer.data})
+
+            return Response(response_data, status=status.HTTP_200_OK)
+
+        else:
+            return Response({"Info:": "You are not allowed here."}, status=status.HTTP_401_UNAUTHORIZED)
