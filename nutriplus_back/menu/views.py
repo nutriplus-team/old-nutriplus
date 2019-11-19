@@ -277,7 +277,7 @@ class DeleteMenu(generics.DestroyAPIView):
         else:
             return Response({"Info": "You are not allowed to delete this menu."}, status=status.HTTP_401_UNAUTHORIZED)
 
-class GetAllMenus(generics.CreateAPIView):
+class GetAllMenus(generics.ListAPIView):
     permission_classes = (IsAuthenticated, )
 
     def get(self, request, *args, **kwargs):
@@ -290,6 +290,40 @@ class GetAllMenus(generics.CreateAPIView):
 
         if patient.nutritionist == request.user:
             menus = Menu.objects.all()
+
+            response_data = list()
+
+            for object in menus:
+                quantitites = str(object.quantities)
+                quantitites = quantitites.split('&')
+
+                foods = object.foods.order_by('food_name')
+                food_serializer = FoodSerializer(foods, many=True)
+
+                response_data.append(
+                    {"pk": object.id, "Meal_Type:": object.meal_type.id, "Quantities": quantitites,
+                     "Foods": food_serializer.data})
+
+            return Response(response_data, status=status.HTTP_200_OK)
+
+        else:
+            return Response({"Info:": "You are not allowed here."}, status=status.HTTP_401_UNAUTHORIZED)
+
+
+class GetFromMeal(generics.ListAPIView):
+    permission_classes = (IsAuthenticated, )
+
+    def get(self, request, *args, **kwargs):
+        patient_id = kwargs['patient_id']
+        meal_id = kwargs['meal_id']
+
+        try:
+            patient = Patients.objects.get(pk=patient_id)
+        except Patients.DoesNotExist:
+            return Response({"Info": "Patient does no exist."}, status=status.HTTP_404_NOT_FOUND)
+
+        if patient.nutritionist == request.user:
+            menus = Menu.objects.filter(meal_type=Meal.objects.get(pk=meal_id))
 
             response_data = list()
 
