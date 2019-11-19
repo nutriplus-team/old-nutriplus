@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from food.models import Food
 
 
-class Patients(models.Model):
+class Patients(models.Model): #TODO: mudar pl singular se tiver tempo
     name = models.CharField(max_length=120)
     date_of_birth = models.DateField()
     food_restrictions = models.ManyToManyField(Food, blank=True)
