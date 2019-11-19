@@ -8,6 +8,7 @@ import FoodSuggestions from "./components/FoodSuggestions/FoodSuggestions";
 import Main from "./components/Main/Main";
 import Logout from "./containers/Logout/Logout";
 import Subscribe from "./containers/Subscribe/Subscribe";
+import FoodDatabaseEditor from "./containers/FoodDatabaseEditor/FoodDatabaseEditor";
 
 class App extends Component {
   state = { isAuthenticated: false };
@@ -62,6 +63,10 @@ class App extends Component {
           <Route
             path="/cardapio"
             render={props => <FoodSuggestions {...props} />}
+          />
+          <Route
+            path="/alimentos"
+            render={props => <FoodDatabaseEditor {...props} />}
           />
           <Route
             path="/logout"

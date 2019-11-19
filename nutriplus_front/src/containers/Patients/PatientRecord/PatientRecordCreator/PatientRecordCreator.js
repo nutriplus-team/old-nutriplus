@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { Redirect } from "react-router-dom";
 import { sendAuthenticatedRequest } from "../../../../utility/httpHelper";
+import { numberValidator } from "../../../../utility/validators";
 import {
   Button,
   Form,
@@ -56,8 +57,8 @@ class PatientRecordCreator extends Component {
     const BMI = +this.state.weight / (+this.state.height * +this.state.height);
     if (
       +this.state.weight > 0.1 &&
-      +this.state.height > 0.1 &&
       +this.state.weight < 1000 &&
+      +this.state.height > 0.1 &&
       +this.state.height < 3
     ) {
       if (!this.state.editing) {
@@ -137,8 +138,8 @@ class PatientRecordCreator extends Component {
                   iconPosition="left"
                   placeholder="Peso (em kg). Ex: 51.53"
                   onChange={event => {
-                    const weightRegex = /^\d{0,3}\.\d{0,2}$|^\d{0,3}$/;
-                    if (!weightRegex.test(event.target.value)) return;
+                    if (!numberValidator(event.target.value, 3, true, 2))
+                      return;
                     this.setState({ weight: event.target.value, message: "" });
                   }}
                   value={this.state.weight}
@@ -149,8 +150,8 @@ class PatientRecordCreator extends Component {
                   placeholder="Altura(em m). Ex: 1.81"
                   value={this.state.height}
                   onChange={event => {
-                    const heightRegex = /^\d{0,1}\.\d{0,2}$|^\d{0,1}$/;
-                    if (!heightRegex.test(event.target.value)) return;
+                    if (!numberValidator(event.target.value, 1, true, 2))
+                      return;
                     this.setState({ height: event.target.value, message: "" });
                   }}
                 />

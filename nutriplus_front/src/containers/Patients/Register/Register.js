@@ -3,6 +3,10 @@ import { Redirect } from "react-router-dom";
 import { Button, Form, Grid, Header, Segment, Input } from "semantic-ui-react";
 import { sendAuthenticatedRequest } from "../../../utility/httpHelper";
 import Paginator from "../../../utility/paginator";
+import {
+  dateFormatValidator,
+  dateValidator
+} from "../../../utility/validators";
 import classes from "./Register.module.css";
 
 const Register = props => {
@@ -19,8 +23,9 @@ const Register = props => {
 
   const searchRef = useRef();
 
+  const { params } = props.match;
+
   useEffect(() => {
-    const params = props.match.params;
     if (params["id"]) {
       sendAuthenticatedRequest(
         "http://localhost:8080/patients/get-info/" + params["id"] + "/",
@@ -34,7 +39,7 @@ const Register = props => {
       );
       setEditing(true);
     }
-  }, []);
+  }, [params]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -69,40 +74,9 @@ const Register = props => {
   };
 
   const register = async () => {
-    const params = props.match.params;
-    const fullRegex = /^\d{2}\/\d{2}\/\d{4}$/;
-    if (!fullRegex.test(dob)) {
-      setMessage("A data não está no formato DD-MM-YYYY!");
-      return;
-    }
-    const day = +dob.slice(0, 2);
-    const month = +dob.slice(3, 5);
-    const year = +dob.slice(6);
-    if (day === 0 || month === 0 || month > 12) {
-      setMessage("Data inválida");
-      return;
-    } else if (
-      (month < 8 && month % 2 === 1) ||
-      (month >= 8 && month % 2 === 0)
-    ) {
-      if (day > 31) {
-        setMessage("Data inválida");
-        return;
-      }
-    } else if (month === 2) {
-      if ((year % 4 === 0 && year % 100 !== 0) || year % 400 === 0) {
-        if (day > 29) {
-          setMessage("Data inválida");
-          return;
-        }
-      } else {
-        if (day > 28) {
-          setMessage("Data inválida");
-          return;
-        }
-      }
-    } else if (day > 30) {
-      setMessage("Data inválida");
+    const validatorResult = dateValidator(dob);
+    if (validatorResult !== "Accepted") {
+      setMessage(validatorResult);
       return;
     }
     if (name.length === 0) {
@@ -186,27 +160,22 @@ const Register = props => {
               placeholder="DD/MM/YYYY"
               value={dob}
               onChange={event => {
-                const fullRegex = /^\d{0,3}$|^\d{0,2}\/\d{0,3}$|^\d{0,2}\/\d{0,2}\/\d{0,4}$/;
-                const monthBeginRegex = /^\d{3}$/;
-                const yearBeginRegex = /^\d{0,2}\/\d{3}$/;
-                const inputDob = event.target.value;
-                if (!fullRegex.test(inputDob)) {
+                const result = dateFormatValidator(
+                  event.target.value,
+                  event.target.value.length > dob.length
+                );
+                if (result === "accepted") {
+                  setDob(event.target.value);
+                  setMessage("");
+                } else if (result === "insertSlash") {
+                  setDob(
+                    event.target.value.slice(0, -1) +
+                      "/" +
+                      event.target.value.slice(-1)
+                  );
+                } else if (result === "rejected") {
                   return;
                 }
-                const len = dob.length;
-                if (inputDob.length > len) {
-                  if (
-                    monthBeginRegex.test(inputDob) ||
-                    yearBeginRegex.test(inputDob)
-                  ) {
-                    // First month digit or year digit was just filled
-                    setDob(inputDob.slice(0, -1) + "/" + inputDob.slice(-1));
-                    return;
-                  }
-                }
-                // If I didn't return up until now, I should just set state to the input
-                setDob(inputDob);
-                setMessage("");
               }}
             />
             <Form.Field>
