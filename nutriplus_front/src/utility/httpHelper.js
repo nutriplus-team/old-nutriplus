@@ -7,7 +7,7 @@ export const sendAuthenticatedRequest = async (
   fullURL = false
 ) => {
   let response;
-  let base_url = "http://localhost:8080";
+  let base_url = "http://nutriplusback.herokuapp.com";
   if (!fullURL) {
     url = base_url + url;
   }
