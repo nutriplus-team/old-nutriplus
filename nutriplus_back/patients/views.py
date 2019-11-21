@@ -223,7 +223,21 @@ class RemovePatient(generics.DestroyAPIView):
         try:
             patient = Patients.objects.get(pk=kwargs['id'])
         except Patients.DoesNotExist:
-            return Response({'Info': 'Not Found'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'Info': 'Not Found'}, status=status.HTTP_404_NOT_FOUND)
 
+        PatientRecord.objects.filter(patient=patient).delete()
         patient.delete()
         return Response({'Info': 'Successfully deleted'}, status=status.HTTP_200_OK)
+
+class RemovePatientRecord(generics.DestroyAPIView):
+    permission_classes = (IsAuthenticated, )
+
+    def get(self, *args, **kwargs):
+        try:
+            record = PatientRecord.objects.get(pk=self.kwargs['id'])
+        except PatientRecord.DoesNotExist:
+            return Response({'Info': 'Not Found'}, status=status.HTTP_404_NOT_FOUND)
+
+        record.delete()
+
+        return Response({'Info': 'Sucessfully deleted'}, status=status.HTTP_200_OK)
