@@ -24,7 +24,7 @@ class PatientRecordCreator extends Component {
   componentDidMount = async () => {
     const params = this.props.match.params;
     sendAuthenticatedRequest(
-      "http://localhost:8080/patients/get-info/" + params["id"] + "/",
+      "https://nutriplusback.herokuapp.com/patients/get-info/" + params["id"] + "/",
       "get",
       message =>
         this.setState({
@@ -34,7 +34,7 @@ class PatientRecordCreator extends Component {
     );
     if (params["ficha_id"]) {
       sendAuthenticatedRequest(
-        "http://localhost:8080/patients/get-single-record/" +
+        "https://nutriplusback.herokuapp.com/patients/get-single-record/" +
           params["ficha_id"] +
           "/",
         "get",
@@ -62,7 +62,7 @@ class PatientRecordCreator extends Component {
     ) {
       if (!this.state.editing) {
         sendAuthenticatedRequest(
-          "http://localhost:8080/patients/add-record/" + params["id"] + "/",
+          "https://nutriplusback.herokuapp.com/patients/add-record/" + params["id"] + "/",
           "post",
           message =>
             this.setState({
@@ -85,7 +85,7 @@ class PatientRecordCreator extends Component {
         );
       } else {
         sendAuthenticatedRequest(
-          "http://localhost:8080/patients/edit-record/" +
+          "https://nutriplusback.herokuapp.com/patients/edit-record/" +
             params["ficha_id"] +
             "/",
           "post",
