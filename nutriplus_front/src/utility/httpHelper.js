@@ -3,9 +3,14 @@ export const sendAuthenticatedRequest = async (
   method,
   setMessage,
   afterRequest,
-  body = null
+  body = null,
+  fullURL = false
 ) => {
   let response;
+  let base_url = "http://localhost:8080";
+  if (!fullURL) {
+    url = base_url + url;
+  }
   if (body) {
     response = await fetch(url, {
       method: method,
@@ -31,7 +36,7 @@ export const sendAuthenticatedRequest = async (
     afterRequest(responseJson);
   } else if (response.status === 401) {
     setMessage("A sua sessão expirou! Logando de novo...");
-    const res2 = await fetch("https://nutriplusback.herokuapp.com/user/token/refresh/", {
+    const res2 = await fetch(base_url + "/user/token/refresh/", {
       method: "post",
       body: JSON.stringify({
         refresh: localStorage.getItem("stored_refresh")

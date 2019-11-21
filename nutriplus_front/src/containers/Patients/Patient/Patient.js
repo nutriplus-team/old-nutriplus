@@ -12,7 +12,7 @@ class Patient extends Component {
     error: null,
     hasNext: false,
     hasPrevious: false,
-    redirect: false
+    redirectUrl: null
   };
 
   componentDidUpdate = async () => {
@@ -21,7 +21,7 @@ class Patient extends Component {
       const query = new URLSearchParams(this.props.location.search);
       if (query.get("refresh")) {
         sendAuthenticatedRequest(
-          "https://nutriplusback.herokuapp.com/patients/get-records/" + params["id"] + "/",
+          "/patients/get-records/" + params["id"] + "/",
           "get",
           message => {
             this.setState({
@@ -33,7 +33,7 @@ class Patient extends Component {
               recordQueryInfo: recordInfo,
               hasPrevious: false,
               hasNext: recordInfo.next !== null,
-              redirect: true
+              redirectUrl: "/pacientes/" + params["id"]
             })
         );
       }
@@ -43,7 +43,7 @@ class Patient extends Component {
   componentDidMount = async () => {
     const params = this.props.match.params;
     sendAuthenticatedRequest(
-      "https://nutriplusback.herokuapp.com/patients/get-info/" + params["id"] + "/",
+      "/patients/get-info/" + params["id"] + "/",
       "get",
       message =>
         this.setState({
@@ -52,7 +52,7 @@ class Patient extends Component {
       info => this.setState({ info: info })
     );
     sendAuthenticatedRequest(
-      "https://nutriplusback.herokuapp.com/patients/get-records/" + params["id"] + "/",
+      "/patients/get-records/" + params["id"] + "/",
       "get",
       message => {
         this.setState({
@@ -65,6 +65,22 @@ class Patient extends Component {
           hasPrevious: false,
           hasNext: recordInfo.next !== null
         })
+    );
+  };
+
+  deletePacient = async () => {
+    const params = this.props.match.params;
+    sendAuthenticatedRequest(
+      "/patients/remove-patient/" + params["id"] + "/",
+      "get",
+      message => {
+        this.setState({
+          error: message
+        });
+      },
+      () => {
+        this.setState({ redirectUrl: "/pacientes?refresh=true" });
+      }
     );
   };
 
@@ -112,6 +128,14 @@ class Patient extends Component {
           }
         >
           Criar ficha para o paciente
+        </Button>
+        <Button
+          style={{ margin: "10px" }}
+          color="teal"
+          size="small"
+          onClick={() => this.props.history.push("/cardapio/" + params["id"])}
+        >
+          Criar cardápio para o paciente
         </Button>
         {this.state.recordQueryInfo ? (
           <div className={classes.records}>
@@ -162,7 +186,15 @@ class Patient extends Component {
         >
           Voltar à página de pacientes
         </Button>
-        {this.state.redirect && <Redirect to={"/pacientes/" + params["id"]} />}
+        <Button
+          style={{ margin: "200px auto" }}
+          color="red"
+          size="small"
+          onClick={this.deletePacient}
+        >
+          Excluir paciente
+        </Button>
+        {this.state.redirectUrl && <Redirect to={this.state.redirectUrl} />}
       </div>
     );
   }

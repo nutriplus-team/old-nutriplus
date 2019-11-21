@@ -23,7 +23,7 @@ class Patients extends Component {
       const query = new URLSearchParams(this.props.location.search);
       if (query.get("refresh")) {
         sendAuthenticatedRequest(
-          "https://nutriplusback.herokuapp.com/patients/get-all-patients/",
+          "/patients/get-all-patients/",
           "get",
           message =>
             this.setState({
@@ -44,7 +44,7 @@ class Patients extends Component {
 
   componentDidMount = async () => {
     sendAuthenticatedRequest(
-      "https://nutriplusback.herokuapp.com/patients/get-all-patients/",
+      "/patients/get-all-patients/",
       "get",
       message =>
         this.setState({
