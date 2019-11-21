@@ -1,4 +1,4 @@
-token=`http localhost:8080/user/login/ username=ocimar password=senhadoocimar |cut -f4 -d '"'`
+token=`http $1/user/login/ username=ocimar password=senhadoocimar |cut -f4 -d '"'`
 
 http $1/foods/add-new/ "Authorization: Port $token" food_name="Abacate" calories=96 proteins=1.2 lipids=8.4 carbohydrates=6 fiber=6.3 measure_amount=4  measure_total_grams=100 measure_type="Colher de sopa" food_group="Frutas" meal_set="1&2&4&5&6"
 http $1/foods/add-new/ "Authorization: Port $token" food_name="Abacaxi" calories=48 proteins=0.9 lipids=0.1 carbohydrates=12.3 fiber=1 measure_amount=1.2  measure_total_grams=100 measure_type="Fatia pequena" food_group="Frutas" meal_set="1&2&4&5&6"
