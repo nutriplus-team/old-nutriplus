@@ -5,6 +5,7 @@ import Infos from "./Infos";
 import { Grid, Button } from "semantic-ui-react";
 import SearchFood from "./SearchFood";
 import GenerateMenu from "./GenerateMenu";
+import { sendAuthenticatedRequest } from "../../utility/httpHelper";
 
 const translate_map = {
   "Calorias (kcal)": "calories",
@@ -27,20 +28,16 @@ const PrincipalCardapio = props => {
   const [Available, setAvailable] = useState(null);
 
   useEffect(() => {
-    let token = localStorage.getItem("stored_token");
-    let res;
     const runEffect = async () => {
-      res = await fetch("http://localhost:8080/foods/list-foods/", {
-        method: "get",
-        headers: new Headers({
-          Authorization: "Port " + token,
-          "Content-Type": "application/json"
-        })
-      });
-      const info = await res.json();
-      //console.log(info);
-      setCOMIDAS(info);
-      setMounted1(0);
+      sendAuthenticatedRequest(
+        "/foods/list-foods/",
+        "get",
+        () => {},
+        info => {
+          setCOMIDAS(info);
+          setMounted1(0);
+        }
+      );
     };
 
     runEffect();
