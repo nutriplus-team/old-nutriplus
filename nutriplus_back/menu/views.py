@@ -41,21 +41,21 @@ class AutoGenerateMenu(generics.GenericAPIView):
 
             max_index = len(available_foods)
 
-            weights = [1, 1, 1, 1, 1]
+            weights = [1, 10, 1, 1, 1]
 
-            if request.data['calories'] == 0:
+            if request.data['calories'] == '0':
                 weights[0] = 0
 
-            if request.data['proteins'] == 0:
+            if request.data['proteins'] == '0':
                 weights[1] = 0
 
-            if request.data['carbohydrates'] == 0:
+            if request.data['carbohydrates'] == '0':
                 weights[2] = 0
 
-            if request.data['lipids'] == 0:
+            if request.data['lipids'] == '0':
                 weights[3] = 0
 
-            if request.data['fiber'] == 0:
+            if request.data['fiber'] == '0':
                 weights[4] = 0
 
 
