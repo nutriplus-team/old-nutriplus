@@ -1,6 +1,14 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Redirect } from "react-router-dom";
-import { Button, Form, Grid, Header, Segment, Input } from "semantic-ui-react";
+import {
+  Button,
+  Form,
+  Grid,
+  Header,
+  Segment,
+  Input,
+  Dropdown
+} from "semantic-ui-react";
 import { sendAuthenticatedRequest } from "../../../utility/httpHelper";
 import Paginator from "../../../utility/paginator";
 import {
@@ -12,6 +20,8 @@ import classes from "./Register.module.css";
 const Register = props => {
   const [name, setName] = useState("");
   const [dob, setDob] = useState("");
+  const [sex, setSex] = useState("");
+  const [ethnicity, setEthnicity] = useState("");
   const [restrictions, setRestrictions] = useState([]);
   const [restrictionQuery, setRestrictionQuery] = useState("");
   const [message, setMessage] = useState("");
@@ -34,6 +44,10 @@ const Register = props => {
         info => {
           setName(info.name);
           setDob(info.date_of_birth);
+          setSex(info.biological_sex === 0 ? "Feminino" : "Masculino");
+          setEthnicity(
+            info.ethnic_group === 0 ? "Branco/Hispânico" : "Afroamericano"
+          );
           setRestrictions(info.food_restrictions);
         }
       );
@@ -73,6 +87,11 @@ const Register = props => {
     setRestrictions([]);
   };
 
+  const mapSex = sex => (sex === "Feminino" ? 0 : 1);
+
+  const mapEthnicity = ethnicity =>
+    ethnicity === "Branco/Hispânico" ? 0 : 1.1;
+
   const register = async () => {
     const validatorResult = dateValidator(dob);
     if (validatorResult !== "Accepted") {
@@ -83,7 +102,28 @@ const Register = props => {
       setMessage("Não há nome!");
       return;
     }
+    if (sex.length === 0) {
+      setMessage("O sexo não foi escolhido!");
+      return;
+    }
+    if (ethnicity.length === 0) {
+      setMessage("A etnia não foi escolhida!");
+      return;
+    }
     if (!editing) {
+      console.log(
+        JSON.stringify({
+          patient: name,
+          date_of_birth: dob,
+          biological_sex: mapSex(sex),
+          ethnic_group: mapEthnicity(ethnicity),
+          food_restrictions: restrictions.reduce(
+            (total, actual, index, arr) =>
+              total + actual.id + (index === arr.length - 1 ? "" : "&"),
+            ""
+          )
+        })
+      );
       sendAuthenticatedRequest(
         "/patients/add-new/",
         "post",
@@ -96,6 +136,8 @@ const Register = props => {
         JSON.stringify({
           patient: name,
           date_of_birth: dob,
+          biological_sex: mapSex(sex),
+          ethnic_group: mapEthnicity(ethnicity),
           food_restrictions: restrictions.reduce(
             (total, actual, index, arr) =>
               total + actual.id + (index === arr.length - 1 ? "" : "&"),
@@ -116,6 +158,8 @@ const Register = props => {
         JSON.stringify({
           patient: name,
           date_of_birth: dob,
+          biological_sex: mapSex(sex),
+          ethnic_group: mapEthnicity(ethnicity),
           food_restrictions: restrictions.reduce(
             (total, actual, index, arr) =>
               total + actual.id + (index === arr.length - 1 ? "" : "&"),
@@ -135,6 +179,32 @@ const Register = props => {
   const removeRestriction = food => {
     setRestrictions([...restrictions].filter(restrFood => restrFood !== food));
   };
+
+  const sexOptions = [
+    {
+      key: "Masculino",
+      text: "Masculino",
+      value: "Masculino"
+    },
+    {
+      key: "Feminino",
+      text: "Feminino",
+      value: "Feminino"
+    }
+  ];
+
+  const ethnicityOptions = [
+    {
+      key: "Branco/Hispânico",
+      text: "Branco/Hispânico",
+      value: "Branco/Hispânico"
+    },
+    {
+      key: "Afroamericano",
+      text: "Afroamericano",
+      value: "Afroamericano"
+    }
+  ];
 
   return (
     <Grid textAlign="center" style={{ height: "10vh" }} verticalAlign="middle">
@@ -178,6 +248,28 @@ const Register = props => {
                 }
               }}
             />
+            <Form.Field>
+              <Dropdown
+                placeholder="Sexo"
+                selection
+                value={sex}
+                onChange={(event, data) => {
+                  setSex(data.value);
+                }}
+                options={sexOptions}
+              />
+            </Form.Field>
+            <Form.Field>
+              <Dropdown
+                placeholder="Etnia"
+                selection
+                value={ethnicity}
+                onChange={(event, data) => {
+                  setEthnicity(data.value);
+                }}
+                options={ethnicityOptions}
+              />
+            </Form.Field>
             <Form.Field>
               <Input
                 ref={searchRef}
