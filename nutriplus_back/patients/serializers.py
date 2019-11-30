@@ -7,6 +7,8 @@ from food.models import Food
 class AddNewPatientSerializer(serializers.Serializer):
     patient = serializers.CharField(max_length=120)
     date_of_birth = serializers.DateField(format="%d/%m/%Y", input_formats=["%d/%m/%Y"])
+    biological_sex = serializers.IntegerField()
+    ethnic_group = serializers.FloatField()
     food_restrictions = serializers.CharField(max_length=500, allow_blank=True)
 
 
@@ -22,7 +24,7 @@ class PatientSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Patients
-        fields = ('id', 'name', 'date_of_birth', 'food_restrictions')
+        fields = ('id', 'name', 'date_of_birth', 'food_restrictions', 'biological_sex', 'ethnic_group')
 
 
 class PatientRecordSerializer(serializers.ModelSerializer):

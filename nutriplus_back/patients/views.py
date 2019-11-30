@@ -24,6 +24,8 @@ class AddNewPatient(generics.CreateAPIView):
             new_entry = Patients()
             new_entry.name = serializer.validated_data['patient']
             new_entry.date_of_birth = serializer.validated_data['date_of_birth']
+            new_entry.biological_sex = serializer.validated_data['biological_sex']
+            new_entry.ethnic_group = serializer.validated_data['ethnic_group']
             new_entry.nutritionist = request.user
             new_entry.save()
 
@@ -64,6 +66,8 @@ class EditPatient(generics.UpdateAPIView):
             entry = Patients.objects.get(pk=id)
             entry.name = serializer.validated_data['patient']
             entry.date_of_birth = serializer.validated_data['date_of_birth']
+            entry.biological_sex = serializer.validated_data['biological_sex']
+            entry.ethnic_group = serializer.validated_data['ethnic_group']
 
             food_restrictions = str(serializer.validated_data['food_restrictions'])
             if len(food_restrictions) > 0:
