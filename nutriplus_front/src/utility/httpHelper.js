@@ -53,7 +53,14 @@ export const sendAuthenticatedRequest = async (
     } else if (res2.status === 200) {
       localStorage.setItem("stored_token", info2.access);
       setMessage("Sessão restaurada!");
-      sendAuthenticatedRequest(url, method, setMessage, afterRequest, body);
+      sendAuthenticatedRequest(
+        url,
+        method,
+        setMessage,
+        afterRequest,
+        body,
+        true
+      );
     } else if (res2.status === 401) {
       setMessage(
         "A sua sessão expirou! Por favor, deslogue e logue de novo, por questão de segurança."

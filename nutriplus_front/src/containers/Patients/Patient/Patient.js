@@ -104,6 +104,16 @@ class Patient extends Component {
             </Button>
             <p>Data de nascimento: {this.state.info.date_of_birth}</p>
             <p>
+              Sexo:{" "}
+              {this.state.info.biological_sex === 0 ? "Feminino" : "Masculino"}
+            </p>
+            <p>
+              Etnia:{" "}
+              {this.state.info.ethnic_group === 0
+                ? "Branco/Hispânico"
+                : "Afroamericano"}
+            </p>
+            <p>
               Restrições alimentares:{" "}
               {this.state.info.food_restrictions.length === 0
                 ? "Não há"
