@@ -9,6 +9,9 @@ class Patients(models.Model): #TODO: mudar pl singular se tiver tempo
     food_restrictions = models.ManyToManyField(Food, blank=True)
     nutritionist = models.ForeignKey(User, on_delete=models.CASCADE)
 
+    def __str__(self):
+        return self.name
+
 
 class PatientRecord(models.Model):
     patient = models.ForeignKey(Patients, on_delete=models.CASCADE)
