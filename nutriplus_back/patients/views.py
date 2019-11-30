@@ -106,6 +106,14 @@ class SearchPatients(generics.ListAPIView):
 class AddPatientRecord(generics.CreateAPIView):
     permission_classes = (IsAuthenticated, )
 
+    '''
+        Necessario enviar alem dos parametros basicos (que estao em AddPatientRecordSerializer),
+        o 'methabolic_author' para o calculo da taxa metabolica. Ha duas opcoes para o autor:
+        'Pollok' e 'Faulkner'.
+        
+        O outro parametro eh o metodo para calcular os requerimentos energeticos. O parametro chama-se 'energy_method'
+        A definicao esta em patients/models.py na funcao calculateEnergyRequirements
+    '''
     def post(self, request, *args, **kwargs):
 
         id = kwargs['id']
@@ -114,13 +122,20 @@ class AddPatientRecord(generics.CreateAPIView):
         serializer = AddPatientRecordSerializer(data=request.data)
 
         if serializer.is_valid():
-            new_entry = PatientRecord()
+            new_entry = serializer.create(serializer.validated_data)
             new_entry.patient = patient
-            new_entry.corporal_mass = serializer.validated_data['corporal_mass']
-            new_entry.height = serializer.validated_data['height']
-            new_entry.BMI = serializer.validated_data['BMI']
-            new_entry.observations = serializer.validated_data['observations']
             new_entry.date_modified = datetime.date.today()
+            new_entry.age = datetime.date.today().year - patient.date_of_birth.year
+            new_entry.calculateCorporalDensity()
+            new_entry.calculateBodyFat()
+            new_entry.calculateMuscularMass()
+
+            if 'methabolic_author' in request.data:
+                new_entry.calculateMethabolicRate(request.data['methabolic_author'])
+
+            if 'energy_method' in request.data:
+                new_entry.calculateEnergyRequirements(int(request.data['energy_method']))
+
             new_entry.save()
 
             new_serializer = PatientRecordSerializer(new_entry)
