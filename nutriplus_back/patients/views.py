@@ -160,15 +160,29 @@ class EditPatientRecord(generics.UpdateAPIView):
     def post(self, request, id):
         record = PatientRecord.objects.get(pk=id)
 
-        serializer = AddPatientRecordSerializer(data=request.data)
+        serializer = AddPatientRecordSerializer(record, data=request.data, partial=True)
 
         if serializer.is_valid():
-            record.corporal_mass = serializer.validated_data['corporal_mass']
-            record.height = serializer.validated_data['height']
-            record.BMI = serializer.validated_data['BMI']
-            record.observations = serializer.validated_data['observations']
+
+            try:
+                patient = Patients.objects.get(pk=record.patient.id)
+            except Patients.DoesNotExist:
+                return Response({"Info": "Not valid patient ID"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
             record.date_modified = datetime.date.today()
+            record.age = datetime.date.today().year - patient.date_of_birth.year
+            record.calculateCorporalDensity()
+            record.calculateBodyFat()
+            record.calculateMuscularMass()
+
+            if 'methabolic_author' in request.data:
+                record.calculateMethabolicRate(request.data['methabolic_author'])
+
+            if 'energy_method' in request.data:
+                record.calculateEnergyRequirements(int(request.data['energy_method']))
+
             record.save()
+
 
             new_serializer = PatientRecordSerializer(record)
 
