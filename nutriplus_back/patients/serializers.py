@@ -100,7 +100,7 @@ class AddPatientRecordSerializer(serializers.Serializer):
     def update(self, instance, validated_data):
         instance.is_athlete = validated_data.get('is_athlete', instance.is_athlete)
         instance.physical_activity_level = validated_data.get('physical_activity_level', instance.physical_activity_level)
-        instance.corporal_mass = validated_data.get('coroporal_mass', instance.corporal_mass)
+        instance.corporal_mass = validated_data.get('corporal_mass', instance.corporal_mass)
         instance.height = validated_data.get('height', instance.height)
         instance.BMI = validated_data.get('BMI', instance.BMI)
         instance.observations = validated_data.get('observations', instance.observations)
