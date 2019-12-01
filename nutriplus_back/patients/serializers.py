@@ -37,7 +37,7 @@ class PatientRecordSerializer(serializers.ModelSerializer):
         model = PatientRecord
         fields = ('id', 'patient', 'is_athlete', 'age', 'physical_activity_level', 'corporal_mass', 'height', 'BMI',
                   'observations', 'date_modified', 'subscapular', 'triceps', 'chest', 'axillary', 'supriailiac',
-                  'abdominal', 'thigh', 'calf', 'waist_circ', 'abdominal_circ', 'hips_circ', 'right_arm_circ',
+                  'abdominal', 'thigh', 'calf','biceps', 'waist_circ', 'abdominal_circ', 'hips_circ', 'right_arm_circ',
                   'thigh_circ', 'calf_circ', 'muscular_mass', 'corporal_density', 'tinsley_athlete_non_fat', 'cunningham_athlete',
                   'energy_requirements', 'body_fat_pollok', 'body_fat_faulkner', 'total_weight_methabolic_rate')
 
