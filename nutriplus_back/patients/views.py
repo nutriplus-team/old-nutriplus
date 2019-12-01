@@ -163,7 +163,7 @@ class EditPatientRecord(generics.UpdateAPIView):
         serializer = AddPatientRecordSerializer(record, data=request.data, partial=True)
 
         if serializer.is_valid():
-
+            serializer.save()
             try:
                 patient = Patients.objects.get(pk=record.patient.id)
             except Patients.DoesNotExist:

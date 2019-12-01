@@ -96,3 +96,32 @@ class AddPatientRecordSerializer(serializers.Serializer):
 
     def create(self, validated_data):
         return PatientRecord(**validated_data)
+
+    def update(self, instance, validated_data):
+        instance.is_athlete = validated_data.get('is_athlete', instance.is_athlete)
+        instance.physical_activity_level = validated_data.get('physical_activity_level', instance.physical_activity_level)
+        instance.corporal_mass = validated_data.get('coroporal_mass', instance.corporal_mass)
+        instance.height = validated_data.get('height', instance.height)
+        instance.BMI = validated_data.get('BMI', instance.BMI)
+        instance.observations = validated_data.get('observations', instance.observations)
+
+        # Fat Folds
+        instance.subscapular = validated_data.get('subscapular', instance.subscapular)
+        instance.triceps = validated_data.get('triceps', instance.triceps)
+        instance.biceps = validated_data.get('biceps', instance.biceps)
+        instance.chest = validated_data.get('chest', instance.chest)
+        instance.axillary = validated_data.get('axillary', instance.axillary)
+        instance.supriailiac = validated_data.get('supriailiac', instance.supriailiac)
+        instance.abdominal = validated_data.get('abdominal', instance.abdominal)
+        instance.thigh = validated_data.get('thigh', instance.thigh)
+        instance.calf = validated_data.get('calf', instance.calf)
+
+        # Circumferences
+        instance.waist_circ = validated_data.get('waist_circ', instance.waist_circ)
+        instance.abdominal_circ = validated_data.get('abdominal_circ', instance.abdominal_circ)
+        instance.hips_circ = validated_data.get('hips_circ', instance.hips_circ)
+        instance.right_arm_circ = validated_data.get('right_arm_circ', instance.right_arm_circ)
+        instance.thigh_circ = validated_data.get('thigh_circ', instance.thigh_circ)
+        instance.calf_circ = validated_data.get('calf_circ', instance.calf_circ)
+
+        return instance
