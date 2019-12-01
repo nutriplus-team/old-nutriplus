@@ -70,7 +70,10 @@ class AutoGenerateMenu(generics.GenericAPIView):
             for i in range(0, 8):
                 number = random.randrange(max_index)
                 if number in excluding:
-                    number = random.randrange(max_index)
+                    tries = 0
+                    while tries < 3 and number in excluding:
+                        number = random.randrange(max_index)
+                        tries += 1
                 else:
                     excluding.add(number)
                 itens_for_menu.append(available_foods[number])
