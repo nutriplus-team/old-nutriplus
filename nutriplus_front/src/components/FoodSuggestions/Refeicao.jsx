@@ -302,7 +302,12 @@ class Refeicao extends Component {
               ></Input>
             </Table.Cell>
             <Table.Cell>
-              {comida.measure_amount + " " + comida.measure_type}
+              {(
+                comida.measure_amount *
+                Number(this.searchFactor(comida.food_name))
+              ).toFixed(2) +
+                " " +
+                comida.measure_type}
             </Table.Cell>
           </Table.Row>
         );
@@ -314,7 +319,7 @@ class Refeicao extends Component {
           <Table.Row>
             <Table.HeaderCell>Alimento</Table.HeaderCell>
             <Table.HeaderCell>Quantidade (porções)</Table.HeaderCell>
-            <Table.HeaderCell>Uma porção equivale</Table.HeaderCell>
+            <Table.HeaderCell>Porções caseiras</Table.HeaderCell>
           </Table.Row>
         </Table.Header>
         <Table.Body>{content}</Table.Body>
