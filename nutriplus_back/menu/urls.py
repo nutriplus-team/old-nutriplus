@@ -1,7 +1,7 @@
 from django.urls import path
 
 from .views import (AutoGenerateMenu, AddMenu, EditMenu, DeleteMenu, GetMenu,
-                    GetAllMenus, GetFromMeal)
+                    GetAllMenus, GetFromMeal, SubstituteMenu)
 
 urlpatterns = [
     path(r'generate/<int:meal>/<int:patient>/', AutoGenerateMenu.as_view(), name="Teste"),
@@ -11,4 +11,5 @@ urlpatterns = [
     path(r'delete/<int:id>/', DeleteMenu.as_view(), name='DeleteMenu'),
     path(r'get-all/<int:patient_id>/', GetAllMenus.as_view(), name='GetAllMenus'),
     path(r'get-from-meal/<int:patient_id>/<int:meal_id>/', GetFromMeal.as_view(), name='GetFromMeal'),
+    path(r'replace/<int:patient_id>/<int:meal_id>/', SubstituteMenu.as_view(), name='SubstituteMenu'),
 ]
