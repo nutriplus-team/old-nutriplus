@@ -52,13 +52,13 @@ class PatientRecord extends Component {
       );
     }
     if (key === "corporal_mass") {
-      return "Peso: " + this.state.record[key] + " kg";
+      return "Peso: " + this.state.record[key].toFixed(2) + " kg";
     }
     if (key === "height") {
-      return "Altura: " + this.state.record[key] + " m";
+      return "Altura: " + this.state.record[key].toFixed(2) + " m";
     }
     if (key === "BMI") {
-      return "IMC: " + this.state.record[key];
+      return "IMC: " + this.state.record[key].toFixed(2);
     }
     if (key === "observations") {
       return "Observações: " + this.state.record[key];
@@ -67,67 +67,77 @@ class PatientRecord extends Component {
       return "Data de modificação: " + this.state.record[key];
     }
     if (key === "subscapular") {
-      return "Subscapular: " + this.state.record[key];
+      return "Subscapular: " + this.state.record[key].toFixed(2);
     }
     if (key === "triceps") {
-      return "Tríceps: " + this.state.record[key];
+      return "Tríceps: " + this.state.record[key].toFixed(2);
     }
     if (key === "biceps") {
-      return "Biceps: " + this.state.record[key];
+      return "Biceps: " + this.state.record[key].toFixed(2);
     }
     if (key === "chest") {
-      return "Peito: " + this.state.record[key];
+      return "Peito: " + this.state.record[key].toFixed(2);
     }
     if (key === "axillary") {
-      return "Axilar média: " + this.state.record[key];
+      return "Axilar média: " + this.state.record[key].toFixed(2);
     }
     if (key === "supriailiac") {
-      return "Supraíliaca: " + this.state.record[key];
+      return "Supraíliaca: " + this.state.record[key].toFixed(2);
     }
     if (key === "abdominal") {
-      return "Abdominal: " + this.state.record[key];
+      return "Abdominal: " + this.state.record[key].toFixed(2);
     }
     if (key === "thigh") {
-      return "Coxa: " + this.state.record[key];
+      return "Coxa: " + this.state.record[key].toFixed(2);
     }
     if (key === "calf") {
-      return "Panturrilha: " + this.state.record[key];
+      return "Panturrilha: " + this.state.record[key].toFixed(2);
     }
     if (key === "waist_circ") {
-      return "Circunferência da cintura: " + this.state.record[key];
+      return "Circunferência da cintura: " + this.state.record[key].toFixed(2);
     }
     if (key === "abdominal_circ") {
-      return "Circunferência abdominal: " + this.state.record[key];
+      return "Circunferência abdominal: " + this.state.record[key].toFixed(2);
     }
     if (key === "hips_circ") {
-      return "Circunferência do quadril: " + this.state.record[key];
+      return "Circunferência do quadril: " + this.state.record[key].toFixed(2);
     }
     if (key === "right_arm_circ") {
-      return "Circunferência do braço direito: " + this.state.record[key];
+      return (
+        "Circunferência do braço direito: " + this.state.record[key].toFixed(2)
+      );
     }
     if (key === "thigh_circ") {
-      return "Circunferência da coxa média: " + this.state.record[key];
+      return (
+        "Circunferência da coxa média: " + this.state.record[key].toFixed(2)
+      );
     }
     if (key === "calf_circ") {
-      return "Circunferência da panturrilha: " + this.state.record[key];
+      return (
+        "Circunferência da panturrilha: " + this.state.record[key].toFixed(2)
+      );
     }
     if (key === "body_fat_faulkner") {
-      return "Taxa de gordura por Faulkner: " + this.state.record[key];
+      return (
+        "Taxa de gordura por Faulkner: " + this.state.record[key].toFixed(2)
+      );
     }
     if (key === "body_fat_pollok") {
-      return "Taxa de gordura por Pollok: " + this.state.record[key];
+      return "Taxa de gordura por Pollok: " + this.state.record[key].toFixed(2);
     }
     if (key === "corporal_density") {
-      return "Densidade corporal: " + this.state.record[key];
+      return "Densidade corporal: " + this.state.record[key].toFixed(2);
     }
     if (key === "cunningham_athlete") {
-      return "Taxa metabólica por Cunningham: " + this.state.record[key];
+      return (
+        "Taxa metabólica por Cunningham: " + this.state.record[key].toFixed(2)
+      );
     }
     if (key === "energy_requirements") {
-      return "Necessidades energéticas: " + this.state.record[key];
+      return "Necessidades energéticas: " + this.state.record[key].toFixed(2);
     }
     if (key === "muscular_mass") {
-      return "Massa muscular: " + this.state.record[key];
+      return "Massa muscular: " + this.state.record[key].toFixed(2);
     }
     if (key === "is_athlete") {
       return "Atleta: " + (this.state.record[key] ? "Sim" : "Não");
@@ -139,10 +149,14 @@ class PatientRecord extends Component {
       );
     }
     if (key === "tinsley_athlete_non_fat") {
-      return "Taxa metabólica por Tinsley: " + this.state.record[key];
+      return (
+        "Taxa metabólica por Tinsley: " + this.state.record[key].toFixed(2)
+      );
     }
     if (key === "total_weight_methabolic_rate") {
-      return "Taxa metabólica com peso total: " + this.state.record[key];
+      return (
+        "Taxa metabólica com peso total: " + this.state.record[key].toFixed(2)
+      );
     }
     return null;
   };
