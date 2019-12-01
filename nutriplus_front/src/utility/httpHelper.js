@@ -30,6 +30,8 @@ export const sendAuthenticatedRequest = async (
   }
 
   const responseJson = await response.json();
+  console.log("response", response);
+  console.log("responseJson", responseJson);
   if (response.status === 400) {
     setMessage("Houve algum problema ao tentar carregar a ficha do paciente!");
   } else if (response.status === 200) {

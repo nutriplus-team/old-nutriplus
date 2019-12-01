@@ -111,19 +111,6 @@ const Register = props => {
       return;
     }
     if (!editing) {
-      console.log(
-        JSON.stringify({
-          patient: name,
-          date_of_birth: dob,
-          biological_sex: mapSex(sex),
-          ethnic_group: mapEthnicity(ethnicity),
-          food_restrictions: restrictions.reduce(
-            (total, actual, index, arr) =>
-              total + actual.id + (index === arr.length - 1 ? "" : "&"),
-            ""
-          )
-        })
-      );
       sendAuthenticatedRequest(
         "/patients/add-new/",
         "post",

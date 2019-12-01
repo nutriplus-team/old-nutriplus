@@ -25,7 +25,9 @@ const paginator = props => {
     .map(props.listElementMap);
 
   if (props.isList) {
-    results = <ul>{results}</ul>;
+    results = (
+      <ul style={{ listStyleType: "none", paddingLeft: 0 }}>{results}</ul>
+    );
   }
 
   if (props.isTable) {

@@ -28,6 +28,23 @@ class PatientRecord extends Component {
     );
   };
 
+  mapNumberToPhysicalActivityOption = number => {
+    switch (+number) {
+      case 1:
+        return "Não faz atividade física";
+      case 1.2:
+        return "Sedentário";
+      case 1.3:
+        return "Atividade física leve";
+      case 1.5:
+        return "Atividade física moderada";
+      case 1.7:
+        return "Atividade física intensa";
+      default:
+        return "Wrong function usage";
+    }
+  };
+
   processObjectKey = key => {
     if (key === "patient") {
       return (
@@ -48,6 +65,84 @@ class PatientRecord extends Component {
     }
     if (key === "date_modified") {
       return "Data de modificação: " + this.state.record[key];
+    }
+    if (key === "subscapular") {
+      return "Subscapular: " + this.state.record[key];
+    }
+    if (key === "triceps") {
+      return "Tríceps: " + this.state.record[key];
+    }
+    if (key === "biceps") {
+      return "Biceps: " + this.state.record[key];
+    }
+    if (key === "chest") {
+      return "Peito: " + this.state.record[key];
+    }
+    if (key === "axillary") {
+      return "Axilar média: " + this.state.record[key];
+    }
+    if (key === "supriailiac") {
+      return "Supraíliaca: " + this.state.record[key];
+    }
+    if (key === "abdominal") {
+      return "Abdominal: " + this.state.record[key];
+    }
+    if (key === "thigh") {
+      return "Coxa: " + this.state.record[key];
+    }
+    if (key === "calf") {
+      return "Panturrilha: " + this.state.record[key];
+    }
+    if (key === "waist_circ") {
+      return "Circunferência da cintura: " + this.state.record[key];
+    }
+    if (key === "abdominal_circ") {
+      return "Circunferência abdominal: " + this.state.record[key];
+    }
+    if (key === "hips_circ") {
+      return "Circunferência do quadril: " + this.state.record[key];
+    }
+    if (key === "right_arm_circ") {
+      return "Circunferência do braço direito: " + this.state.record[key];
+    }
+    if (key === "thigh_circ") {
+      return "Circunferência da coxa média: " + this.state.record[key];
+    }
+    if (key === "calf_circ") {
+      return "Circunferência da panturrilha: " + this.state.record[key];
+    }
+    if (key === "body_fat_faulkner") {
+      return "Taxa de gordura por Faulkner: " + this.state.record[key];
+    }
+    if (key === "body_fat_pollok") {
+      return "Taxa de gordura por Pollok: " + this.state.record[key];
+    }
+    if (key === "corporal_density") {
+      return "Densidade corporal: " + this.state.record[key];
+    }
+    if (key === "cunningham_athlete") {
+      return "Taxa metabólica por Cunningham: " + this.state.record[key];
+    }
+    if (key === "energy_requirements") {
+      return "Necessidades energéticas: " + this.state.record[key];
+    }
+    if (key === "muscular_mass") {
+      return "Massa muscular: " + this.state.record[key];
+    }
+    if (key === "is_athlete") {
+      return "Atleta: " + (this.state.record[key] ? "Sim" : "Não");
+    }
+    if (key === "physical_activity_level") {
+      return (
+        "Nível de atividade física: " +
+        this.mapNumberToPhysicalActivityOption(this.state.record[key])
+      );
+    }
+    if (key === "tinsley_athlete_non_fat") {
+      return "Taxa metabólica por Tinsley: " + this.state.record[key];
+    }
+    if (key === "total_weight_methabolic_rate") {
+      return "Taxa metabólica com peso total: " + this.state.record[key];
     }
     return null;
   };
@@ -71,6 +166,7 @@ class PatientRecord extends Component {
   };
 
   render() {
+    console.log("patientRecord state", this.state);
     const params = this.props.match.params;
     return (
       <div>
