@@ -1,0 +1,32 @@
+digraph G {
+
+  "recebe dados" -> "buscar paciente";
+  "buscar paciente" -> "usuário é nutricionista" [ label=" Existe" ];
+  "buscar paciente" -> HTTP_404_NOT_FOUND [ label=" Não existe" ];
+  "usuário é nutricionista"  -> "avalia relevância da calorias" [ label=" Sim" ];
+  "usuário é nutricionista" -> HTTP_401_UNAUTHORIZED [ label=" Não" ];
+  "avalia relevância da calorias" -> "peso na busca da caloria = 1"[ label=" calorias != 0" ];
+  "avalia relevância da calorias" -> "peso na busca da caloria = 0"[ label=" calorias = 0" ];
+  "peso na busca da caloria = 1" -> "avalia relevância da proteinas"
+  "peso na busca da caloria = 0" -> "avalia relevância da proteinas"
+  "avalia relevância da proteinas" -> "peso na busca da proteina = 10"[ label=" proteinas != 0" ];
+  "avalia relevância da proteinas" -> "peso na busca da proteina = 0"[ label=" proteinas = 0" ];
+  "peso na busca da proteina = 10" -> "avalia relevância dos carboidratos"
+  "peso na busca da proteina = 0" -> "avalia relevância dos carboidratos"
+  "avalia relevância dos carboidratos" -> "peso na busca do carboidrato = 1"[ label=" carboidratos != 0" ];
+  "avalia relevância dos carboidratos" -> "peso na busca do carboidrato = 0"[ label=" carboidratos = 0" ];
+  "peso na busca do carboidrato = 1" -> "avalia relevância dos lipdios"
+  "peso na busca do carboidrato = 0" -> "avalia relevância dos lipdios"
+  "avalia relevância dos lipdios" -> "peso na busca do lipdio = 1"[ label=" lipdios != 0" ];
+  "avalia relevância dos lipdios" -> "peso na busca do lipdio = 0"[ label=" lipdios = 0" ];
+  "peso na busca do lipdio = 1" -> "avalia relevância das fibras"
+  "peso na busca do lipdio = 0" -> "avalia relevância das fibras"
+  "avalia relevância das fibras" -> "peso na busca da fibra = 1"[ label=" fibras != 0" ];
+  "avalia relevância das fibras" -> "peso na busca da fibra = 0"[ label=" fibras = 0" ];
+  "peso na busca da fibra = 1" -> "escolhe oito comidas diferentes"
+  "peso na busca da fibra = 0" -> "escolhe oito comidas diferentes"
+  "escolhe oito comidas diferentes" -> "seleciona comidas com peso \npara atender valores nutricionais\n (algoritmo meetInTheMiddle) "
+  "seleciona comidas com peso \npara atender valores nutricionais\n (algoritmo meetInTheMiddle) " -> "retorna cardápio\n (HTTP_200_OK)"
+  
+
+}
