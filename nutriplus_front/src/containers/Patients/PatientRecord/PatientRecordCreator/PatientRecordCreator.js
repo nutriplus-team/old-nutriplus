@@ -472,17 +472,6 @@ class PatientRecordCreator extends Component {
                     options={this.energyRequirementsOptions}
                   />
                 </Form.Field>
-                <Form.Field>
-                  <Dropdown
-                    placeholder="Nível de atividade física"
-                    selection
-                    value={this.state.physicalActivity}
-                    onChange={(event, data) => {
-                      this.setState({ physicalActivity: data.value });
-                    }}
-                    options={this.physicalActivityOptions}
-                  />
-                </Form.Field>
                 <Form.Input
                   icon="male"
                   iconPosition="left"

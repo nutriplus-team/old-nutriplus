@@ -32,7 +32,6 @@ class Cardapio extends Component {
         let atributos = Object.keys(info).map(
           key => `${mapa_traducao[key]} (${info[key]})`
         );
-        console.log(atributos);
         this.setState({
           atributos: atributos
         });

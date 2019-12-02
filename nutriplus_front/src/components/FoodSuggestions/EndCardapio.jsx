@@ -61,16 +61,8 @@ class EndCardapio extends Component {
   };
 
   generateNewCardapio = async (refeicao, i, actualVN) => {
-    console.log("entrou: ", i);
-    console.log(
-      "new_cardapios dentro do generate antes do fetch: ",
-      this.state.new_cardapios
-    );
     await this.handleFetch(actualVN, refeicao, i);
-    console.log(
-      "new_cardapios dentro do generate dps do fetch: ",
-      this.state.new_cardapios
-    );
+
     let options = [];
     let j = 0;
     while (j < 3) {
@@ -79,7 +71,6 @@ class EndCardapio extends Component {
         <Table.Row active>
           <Table.Cell />
           <Table.Cell textAlign="center">
-            {console.log(j)}
             <Button
               type={j}
               onClick={(event, { type }) =>
@@ -221,7 +212,6 @@ class EndCardapio extends Component {
   };
 
   generateContent = () => {
-    console.log("chamou");
     let content = this.props.global.cardapios.map((cardapio, refeicao) => {
       let content_i;
       // todas as refeicoes, todas as tabelas
@@ -253,7 +243,6 @@ class EndCardapio extends Component {
 
       let options = this.state.options[refeicao];
       content_i = [...content_i, ...options];
-      console.log("content_i: ", content_i);
       return (
         <React.Fragment>
           <Grid centered>
@@ -282,16 +271,83 @@ class EndCardapio extends Component {
     return content;
   };
 
+  handleEndCardapio = () => {
+    this.props.global.cardapios.map((cardapio, refeicao) => {
+      if (cardapio.length === 0) {
+        return;
+      }
+      let body = {};
+      let factors = this.props.global.factors[refeicao];
+      body.meal_type = refeicao + 1;
+      let ans_cardapio = "";
+      let ans_quantities = "";
+      cardapio.forEach((food, index) => {
+        ans_cardapio += food.id + "&";
+        ans_quantities += factors[food.food_name] + "&";
+      });
+      ans_cardapio = ans_cardapio.slice(0, -1);
+      ans_quantities = ans_quantities.slice(0, -1);
+      body.foods = ans_cardapio;
+      body.quantities = ans_quantities;
+      console.log("body: ", body);
+      sendAuthenticatedRequest(
+        `/menu/add-new/${this.props.match.params["id"]}/`,
+        "post",
+        mes => {
+          console.log("mes: ", mes);
+        },
+        res => {
+          console.log("res: ", res);
+        },
+        JSON.stringify(body)
+      );
+    });
+
+    this.state.new_cardapios.forEach((opcoes, refeicao) => {
+      opcoes.forEach((cardapio, i) => {
+        if (cardapio.length === 0) {
+          return;
+        }
+        let body = {};
+        let factors = this.state.new_factors[refeicao][i];
+        body.meal_type = refeicao + 1;
+        let ans_cardapio = "";
+        let ans_quantities = "";
+        cardapio.forEach((food, index) => {
+          ans_cardapio += food.id + "&";
+          ans_quantities += factors[index] + "&";
+        });
+        ans_cardapio = ans_cardapio.slice(0, -1);
+        ans_quantities = ans_quantities.slice(0, -1);
+        body.foods = ans_cardapio;
+        body.quantities = ans_quantities;
+        console.log("body: ", body);
+        sendAuthenticatedRequest(
+          `/menu/add-new/${this.props.match.params["id"]}/`,
+          "post",
+          mes => {
+            console.log("mes: ", mes);
+          },
+          res => {
+            console.log("res: ", res);
+          },
+          JSON.stringify(body)
+        );
+      });
+    });
+
+    this.props.history.push("/");
+  };
+
   render() {
     if (this.state.mounted === 1) {
       let content = this.generateContent();
-      console.log("content: ", content);
       return (
         <div>
           <h1>Resumo do Cardapio</h1>
           <center>{content}</center>
 
-          <Button onClick={() => this.props.history.push("/")}>Fim</Button>
+          <Button onClick={() => this.handleEndCardapio()}>Fim</Button>
         </div>
       );
     }
