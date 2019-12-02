@@ -7,7 +7,7 @@ from food.models import Meal, Food
 from food.serializers import FoodSerializer
 
 
-from .serializers import AddNewMenuSerializer, MenuSerializer
+from .serializers import AddNewMenuSerializer, MenuSerializer, SubstituteFoodsSerializer
 from .models import Menu, Portions
 import random
 
@@ -41,21 +41,21 @@ class AutoGenerateMenu(generics.GenericAPIView):
 
             max_index = len(available_foods)
 
-            weights = [1, 1, 1, 1, 1]
+            weights = [0.7, 10, 1, 1, 1]
 
-            if request.data['calories'] == 0:
+            if request.data['calories'] == '0':
                 weights[0] = 0
 
-            if request.data['proteins'] == 0:
+            if request.data['proteins'] == '0':
                 weights[1] = 0
 
-            if request.data['carbohydrates'] == 0:
+            if request.data['carbohydrates'] == '0':
                 weights[2] = 0
 
-            if request.data['lipids'] == 0:
+            if request.data['lipids'] == '0':
                 weights[3] = 0
 
-            if request.data['fiber'] == 0:
+            if request.data['fiber'] == '0':
                 weights[4] = 0
 
 
@@ -70,7 +70,10 @@ class AutoGenerateMenu(generics.GenericAPIView):
             for i in range(0, 8):
                 number = random.randrange(max_index)
                 if number in excluding:
-                    number = random.randrange(max_index)
+                    tries = 0
+                    while tries < 3 and number in excluding:
+                        number = random.randrange(max_index)
+                        tries += 1
                 else:
                     excluding.add(number)
                 itens_for_menu.append(available_foods[number])
@@ -335,3 +338,117 @@ class GetFromMeal(generics.ListAPIView):
 
         else:
             return Response({"Info:": "You are not allowed here."}, status=status.HTTP_401_UNAUTHORIZED)
+
+class SubstituteMenu(generics.GenericAPIView):
+    permission_classes = (IsAuthenticated, )
+
+    def post(self, request, *args, **kwargs):
+        meal_id = kwargs['meal_id']
+        patient_id = kwargs['patient_id']
+
+        try:
+            patient = Patients.objects.get(pk=patient_id)
+        except Patients.DoesNotExist:
+            return Response({"Info:": "Patient nto found"}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = SubstituteFoodsSerializer(data=request.data)
+        if serializer.is_valid():
+            foods = str(serializer.validated_data['foods'])
+            quantities = str(serializer.validated_data['quantities'])
+
+            list_of_foods = list()
+
+            best_replacements = list()
+            best_qtys = list()
+
+            if len(foods) > 0 and len(quantities) > 0:
+                foods = foods.split('&')
+                quantities = quantities.split('&')
+
+                quantities = [float(i) for i in quantities]
+
+                for element in foods:
+                    try:
+                        food = Food.objects.get(pk=int(element))
+                    except Food.DoesNotExist:
+                        return Response({"Info:": "Food id not found."}, status=status.HTTP_404_NOT_FOUND)
+
+                    list_of_foods.append(food)
+
+
+                for food, qty in zip(list_of_foods, quantities):
+                    best_food, best_qty = self._findSubstitutes(food, qty, meal_id, patient)
+                    best_replacements.append(best_food)
+                    best_qtys.append(best_qty)
+
+                new_serializer = FoodSerializer(best_replacements, many=True)
+
+                return Response({"Quantities:": best_qtys, "Replacements": new_serializer.data},
+                                status=status.HTTP_200_OK)
+
+            else:
+                return Response({"Info:": "List contains no id or no quantity."}, status=status.HTTP_400_BAD_REQUEST)
+
+        else:
+            return Response({"Info:": "Some fields are missing."}, status=status.HTTP_400_BAD_REQUEST)
+
+    def _rmse(self, predictions, target):
+        return np.sqrt(((predictions - target)**2).mean())
+
+    def _findSubstitutes(self, food, quantity, meal, patient):
+
+        food_restrictions = patient.food_restrictions
+
+        similar = Meal.objects.get(pk=int(meal)).foods.exclude(pk__in=food_restrictions.values_list('id', flat=True))
+        similar = similar.filter(food_group=food.food_group)
+
+        similar_size = len(similar)
+
+        excluding = set()
+        excluding.add(food.id)
+
+        to_evaluate = list()
+
+        if similar_size > 10:
+            for i in range(0,10):
+                number = random.randrange(similar_size)
+                if number in excluding:
+                    number = random.randrange(similar_size)
+                else:
+                    excluding.add(number)
+
+                to_evaluate.append(similar[number])
+        else:
+            to_evaluate = similar.exclude(pk=food.id)
+
+        food_properties = np.array([food.nutrition_facts.calories, food.nutrition_facts.proteins,
+                                    food.nutrition_facts.carbohydrates, food.nutrition_facts.lipids,
+                                    food.nutrition_facts.fiber])
+        food_properties = food_properties*quantity
+
+        weights = np.array([0.7, 10, 1, 1, 1])
+
+        weighted_properties = np.multiply(food_properties, weights)
+
+        options = [0.5, 1, 1.5, 2]
+
+        min_error = 10**20
+
+        best_substitute = None
+        best_qty = None
+
+        for element in to_evaluate:
+            element_properties = np.array([element.nutrition_facts.calories, element.nutrition_facts.proteins,
+                                           element.nutrition_facts.carbohydrates, element.nutrition_facts.lipids,
+                                           element.nutrition_facts.fiber])
+            for factor in options:
+                factored_properties = factor*element_properties
+                error = self._rmse(np.multiply(weights, factored_properties), weighted_properties)
+
+                if error < min_error:
+                    min_error = error
+                    best_substitute = element
+                    best_qty = factor
+
+        return best_substitute, best_qty
+

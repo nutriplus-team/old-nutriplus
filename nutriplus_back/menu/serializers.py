@@ -24,4 +24,7 @@ class MenuSerializer(serializers.ModelSerializer):
         fields = ('id', 'meal_type', 'portions')
 
 
+class SubstituteFoodsSerializer(serializers.Serializer):
+    foods = serializers.CharField(max_length=200)
+    quantities = serializers.CharField(max_length=200)
 

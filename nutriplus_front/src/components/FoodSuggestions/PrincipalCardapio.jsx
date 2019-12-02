@@ -99,7 +99,7 @@ const PrincipalCardapio = props => {
     if (name === "Next") {
       if (refeicao == 5) {
         props.handleGlobal({
-          valorNutricional: valorNutricional,
+          //valorNutricional: valorNutricional,
           cardapios: cardapios,
           factors: factors
         });
@@ -215,12 +215,12 @@ const PrincipalCardapio = props => {
             <br></br>
             <br></br>
             <Grid>
-              <Grid.Column floated="left">
+              <Grid.Column width={2} floated="left">
                 <Button name={"Prev"} onClick={handleTransicaoRefeicao}>
                   Prev
                 </Button>
               </Grid.Column>
-              <Grid.Column floated="right">
+              <Grid.Column width={2} floated="right">
                 <Button name={"Next"} onClick={handleTransicaoRefeicao}>
                   Next
                 </Button>
