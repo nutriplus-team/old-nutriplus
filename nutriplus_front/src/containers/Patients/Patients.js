@@ -21,7 +21,11 @@ class Patients extends Component {
   componentDidUpdate = async () => {
     if (this.props.location.search.length > 0) {
       const query = new URLSearchParams(this.props.location.search);
-      if (query.get("refresh")) {
+      console.log(this.props);
+      if (
+        query.get("refresh") &&
+        this.props.location.pathname === "/pacientes"
+      ) {
         sendAuthenticatedRequest(
           "/patients/get-all-patients/",
           "get",

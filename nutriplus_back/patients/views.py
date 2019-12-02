@@ -24,6 +24,8 @@ class AddNewPatient(generics.CreateAPIView):
             new_entry = Patients()
             new_entry.name = serializer.validated_data['patient']
             new_entry.date_of_birth = serializer.validated_data['date_of_birth']
+            new_entry.biological_sex = serializer.validated_data['biological_sex']
+            new_entry.ethnic_group = serializer.validated_data['ethnic_group']
             new_entry.nutritionist = request.user
             new_entry.save()
 
@@ -64,6 +66,8 @@ class EditPatient(generics.UpdateAPIView):
             entry = Patients.objects.get(pk=id)
             entry.name = serializer.validated_data['patient']
             entry.date_of_birth = serializer.validated_data['date_of_birth']
+            entry.biological_sex = serializer.validated_data['biological_sex']
+            entry.ethnic_group = serializer.validated_data['ethnic_group']
 
             food_restrictions = str(serializer.validated_data['food_restrictions'])
             if len(food_restrictions) > 0:
@@ -102,6 +106,14 @@ class SearchPatients(generics.ListAPIView):
 class AddPatientRecord(generics.CreateAPIView):
     permission_classes = (IsAuthenticated, )
 
+    '''
+        Necessario enviar alem dos parametros basicos (que estao em AddPatientRecordSerializer),
+        o 'methabolic_author' para o calculo da taxa metabolica. Ha duas opcoes para o autor:
+        'Pollok' e 'Faulkner'.
+        
+        O outro parametro eh o metodo para calcular os requerimentos energeticos. O parametro chama-se 'energy_method'
+        A definicao esta em patients/models.py na funcao calculateEnergyRequirements
+    '''
     def post(self, request, *args, **kwargs):
 
         id = kwargs['id']
@@ -110,13 +122,20 @@ class AddPatientRecord(generics.CreateAPIView):
         serializer = AddPatientRecordSerializer(data=request.data)
 
         if serializer.is_valid():
-            new_entry = PatientRecord()
+            new_entry = serializer.create(serializer.validated_data)
             new_entry.patient = patient
-            new_entry.corporal_mass = serializer.validated_data['corporal_mass']
-            new_entry.height = serializer.validated_data['height']
-            new_entry.BMI = serializer.validated_data['BMI']
-            new_entry.observations = serializer.validated_data['observations']
             new_entry.date_modified = datetime.date.today()
+            new_entry.age = datetime.date.today().year - patient.date_of_birth.year
+            new_entry.calculateCorporalDensity()
+            new_entry.calculateBodyFat()
+            new_entry.calculateMuscularMass()
+
+            if 'methabolic_author' in request.data:
+                new_entry.calculateMethabolicRate(request.data['methabolic_author'])
+
+            if 'energy_method' in request.data:
+                new_entry.calculateEnergyRequirements(int(request.data['energy_method']))
+
             new_entry.save()
 
             new_serializer = PatientRecordSerializer(new_entry)
@@ -141,15 +160,29 @@ class EditPatientRecord(generics.UpdateAPIView):
     def post(self, request, id):
         record = PatientRecord.objects.get(pk=id)
 
-        serializer = AddPatientRecordSerializer(data=request.data)
+        serializer = AddPatientRecordSerializer(record, data=request.data, partial=True)
 
         if serializer.is_valid():
-            record.corporal_mass = serializer.validated_data['corporal_mass']
-            record.height = serializer.validated_data['height']
-            record.BMI = serializer.validated_data['BMI']
-            record.observations = serializer.validated_data['observations']
+            serializer.save()
+            try:
+                patient = Patients.objects.get(pk=record.patient.id)
+            except Patients.DoesNotExist:
+                return Response({"Info": "Not valid patient ID"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
             record.date_modified = datetime.date.today()
+            record.age = datetime.date.today().year - patient.date_of_birth.year
+            record.calculateCorporalDensity()
+            record.calculateBodyFat()
+            record.calculateMuscularMass()
+
+            if 'methabolic_author' in request.data:
+                record.calculateMethabolicRate(request.data['methabolic_author'])
+
+            if 'energy_method' in request.data:
+                record.calculateEnergyRequirements(int(request.data['energy_method']))
+
             record.save()
+
 
             new_serializer = PatientRecordSerializer(record)
 
