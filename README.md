@@ -7,7 +7,7 @@ In addition, nutrtionits are able to plan a diet themselves on our application a
 To run the back end of our application, enter the folder ```nutriplus_back``` and install the dependencies by running the command:
 
 ```
-pip install requirements.txt
+pip install -r requirements.txt
 ```
 
 Then, to start the server, run
